@@ -29,12 +29,17 @@ cd deep-solutions
 - 这样确保开发环境和发布包的依赖完全一致
 
 ```bash
-# 创建 Conda 环境（只包含 Python 和 pip）
+# 创建 Conda 环境（只包含 Python 3.8+ 和 pip）
 conda env create -f environment.yml
 
 # 激活环境
 conda activate deep-solutions
 ```
+
+> **项目需求**：
+> - ✅ 最低 Python 版本：**3.8**
+> - ✅ 推荐 Python 版本：**3.10+**
+> - ✅ 支持版本：3.8, 3.9, 3.10, 3.11, 3.12, 3.13
 
 > **为什么这样做？**
 > - ✅ 单一依赖源：所有依赖在 `pyproject.toml` 中管理
@@ -60,7 +65,7 @@ pip install -e ".[dev]"
 这个命令会：
 - 以可编辑模式（`-e`）安装 `deep-solutions` 包（代码修改立即生效）
 - 安装所有核心依赖（numpy, scipy 等）
-- 安装所有开发工具（pytest, black, isort, flake8, mypy, build, twine）
+- 安装所有开发工具（pytest, ruff, mypy, build, twine）
 
 ### 仅安装核心依赖
 
@@ -129,56 +134,51 @@ xdg-open htmlcov/index.html  # Linux
 
 ## 代码规范
 
-我们使用以下工具确保代码质量：
+我们使用 **Ruff** 作为统一的代码格式化和 Lint 工具（替代 black/isort/flake8），以及 **mypy** 进行类型检查。
 
-### 1. Black - 代码格式化
+### 1. Ruff - 代码格式化
 
 ```bash
 # 格式化所有代码
-black src/ tests/
+ruff format src/ tests/
 
 # 检查格式但不修改
-black --check src/ tests/
+ruff format --check src/ tests/
 ```
 
-### 2. isort - 导入排序
+### 2. Ruff - 代码 Lint 检查
 
 ```bash
-# 自动排序导入
-isort src/ tests/
+# 检查代码问题
+ruff check src/ tests/
 
-# 检查导入顺序
-isort --check-only src/ tests/
+# 自动修复可修复的问题
+ruff check --fix src/ tests/
 ```
 
-### 3. Flake8 - 代码风格检查
-
-```bash
-# 检查代码风格
-flake8 src/ tests/
-```
-
-### 4. MyPy - 类型检查
+### 3. MyPy - 类型检查
 
 ```bash
 # 运行类型检查
 mypy src/
 ```
 
-### 一键运行所有检查
+### 一键运行所有检查 ⭐
+
+我们提供了一个便捷脚本，一次运行所有检查（推荐在提交前使用）：
 
 ```bash
-# 格式化代码
-black src/ tests/
-isort src/ tests/
-
-# 检查代码质量
-flake8 src/ tests/
-mypy src/
-
-# 运行测试
-pytest
+# 运行完整检查流程
+./scripts/check.sh
 ```
+
+该脚本会依次执行：
+1. **格式化代码** (`ruff format`)
+2. **Lint 检查** (`ruff check`)
+3. **类型检查** (`mypy`)
+4. **运行测试** (`pytest`)
+
+如果任何步骤失败，脚本会停止并报告错误。
 
 ---
 
@@ -186,14 +186,22 @@ pytest
 
 ### 1. 提交前检查清单
 
-- [ ] 代码已格式化（black + isort）
-- [ ] 通过所有代码质量检查（flake8 + mypy）
+- [ ] 代码已格式化（`ruff format`）
+- [ ] 通过 Lint 检查（`ruff check`）
+- [ ] 通过类型检查（`mypy`）
 - [ ] 添加了必要的测试
 - [ ] 所有测试通过
 - [ ] 更新了相关文档
 - [ ] 更新了 CHANGELOG.md
 
-### 2. 提交代码
+### 2. 快速检查（推荐）
+
+```bash
+# 一键完成所有检查
+./scripts/check.sh
+```
+
+### 3. 提交代码
 
 ```bash
 # 添加更改
@@ -279,8 +287,56 @@ python -m build
 # 在新环境中测试安装
 conda create -n test-env python=3.10
 conda activate test-env
-pip install dist/deep_solutions-0.1.0-py3-none-any.whl
+pip install dist/deep_solutions-*.whl
+
+# 验证版本
+python -c "import deep_solutions; print(deep_solutions.__version__)"
 ```
+
+---
+
+## 发版指南
+
+为了维护项目的质量和可靠性，所有发版都通过 GitHub Actions 工作流进行自动化处理。
+
+### 快速概览
+
+- **项目支持 Python 版本**：3.8+ （包含 3.8, 3.9, 3.10, 3.11, 3.12, 3.13）
+- **发版方式**：手动触发 GitHub Actions 工作流
+- **版本管理**：通过 Git Tag 和 setuptools-scm 自动管理
+- **发布渠道**：TestPyPI（测试）和 PyPI（正式）
+
+### 详细发版流程
+
+请参考 [发布指南](./发布指南.md) 了解：
+- 如何生成和配置 API Token
+- 如何在 GitHub Actions 中手动触发发布工作流
+- 不同版本类型的发布方式（正式版、RC、Alpha/Beta 等）
+- 发布后的验证和问题排查
+
+### 版本号规范
+
+本项目遵循 [Semantic Versioning](https://semver.org/) 和 [PEP 440](https://peps.python.org/pep-0440/)：
+
+```
+v MAJOR.MINOR.PATCH [pre-release] [build-metadata]
+
+例如：
+- v1.0.0          # 正式发布
+- v1.0.0rc1       # Release Candidate
+- v1.0.0a1        # Alpha
+- v1.0.0b1        # Beta
+- v1.0.0.post1    # 后续修复
+- v1.0.0.dev1     # 开发版本
+```
+
+### 版本号管理原理
+
+详见 [版本号管理方案](../.nonpublic/prompts/dev/v0.0.1/A001_repo_init/A004_版本号管理方案.md)：
+- Git Tag 是唯一的版本源
+- 使用 `setuptools-scm` 自动生成版本号
+- 使用 `importlib.metadata` 在运行时读取版本
+- 不需要手动维护 `__version__`
 
 ---
 
@@ -291,5 +347,6 @@ pip install dist/deep_solutions-0.1.0-py3-none-any.whl
 1. 查看 [GitHub Issues](https://github.com/FrostyHec/deep-solutions/issues)
 2. 创建新的 Issue 描述您的问题
 3. 参与 Discussions 讨论
+4. 参考 [发布指南](./发布指南.md) 了解发版相关问题
 
 感谢您的贡献！ 🎉

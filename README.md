@@ -3,8 +3,8 @@
 A library that provides useful tools and standard solutions for deep learning tasks.
 
 [![PyPI version](https://badge.fury.io/py/deep-solutions.svg)](https://badge.fury.io/py/deep-solutions)
-[![Python Version](https://img.shields.io/pypi/pyversions/deep-solutions)](https://pypi.org/project/deep-solutions/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python Version](https://img.shields.io/badge/python-3.8%2B-blue)](https://pypi.org/project/deep-solutions/)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 ## 📦 Installation
 
@@ -80,13 +80,17 @@ pytest --cov=deep_solutions --cov-report=html
 ### Code Quality
 
 ```bash
-# Format code
-black src/ tests/
-isort src/ tests/
+# Format code (using Ruff)
+ruff format src/ tests/
 
-# Check code quality
-flake8 src/ tests/
+# Lint code
+ruff check src/ tests/
+
+# Type check
 mypy src/
+
+# Run all checks at once
+./scripts/check.sh
 ```
 
 ## 📝 Features
@@ -99,7 +103,7 @@ mypy src/
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
 
 ## 🤝 Contributing
 
@@ -125,4 +129,4 @@ Contributions are welcome! Please see our [Developer Guide](docs/developers.md) 
 
 ---
 
-**Note**: This is version 0.1.0 - the API may change in future releases.
+**Note**: This project is in active development - the API may change in future releases.

@@ -1,0 +1,113 @@
+# =============================================================================
+# Publish to TestPyPI
+# 触发条件: 手动工作流触发 (workflow_dispatch)
+# 功能:
+#   1. 构建包
+#   2. 发布到 TestPyPI (使用 API Token)
+#   3. 验证安装
+# 
+# 使用说明:
+#   1. 前置条件:
+#      - 在 TestPyPI 账户上生成 API Token: https://test.pypi.org/manage/account/tokens/
+#      - 在 GitHub 仓库 Settings > Secrets and variables > Actions 中添加:
+#        - Name: TEST_PYPI_API_TOKEN
+#        - Secret: <your-test-pypi-api-token>
+#      - 确保 environment 中配置了 TEST_PYPI_API_TOKEN secret
+#
+#   2. 触发发布:
+#      - 在 GitHub Actions 页面选择此工作流
+#      - 点击 "Run workflow"
+#      - 输入版本标签 (例如: v1.0.0-test, v0.1.0rc1, v2.0.0.dev1)
+#      - 点击 "Run workflow"
+#
+#   3. 工作流会自动:
+#      - 构建 sdist 和 wheel
+#      - 发布到 TestPyPI
+#      - 验证安装
+# =============================================================================
+
+name: Publish to TestPyPI
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_tag:
+        description: 'Version tag to test publish (e.g., v1.0.0-test, v0.1.0rc1, v2.0.0.dev1)'
+        required: true
+        type: string
+
+jobs:
+  publish-test:
+    name: Publish to TestPyPI
+    runs-on: ubuntu-latest
+    environment: testpypi
+    
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # setuptools-scm 需要完整的 git 历史
+
+      - name: Create git tag (if not exists)
+        run: |
+          TAG="${{ github.event.inputs.version_tag }}"
+          if ! git rev-parse "$TAG" >/dev/null 2>&1; then
+            git tag "$TAG"
+            git push origin "$TAG"
+            echo "Created and pushed tag: $TAG"
+          else
+            echo "Tag already exists: $TAG"
+          fi
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install build tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install build twine
+
+      - name: Build package
+        run: python -m build
+
+      - name: Check package
+        run: twine check dist/*
+
+      - name: Publish to TestPyPI (using API Token)
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.TEST_PYPI_API_TOKEN }}
+          TWINE_REPOSITORY_URL: https://test.pypi.org/legacy/
+          TWINE_NON_INTERACTIVE: 1
+        run: twine upload dist/* --skip-existing
+
+      - name: Wait for package to be available
+        run: sleep 30
+
+      - name: Test installation from TestPyPI
+        run: |
+          # 创建新的虚拟环境测试
+          python -m venv test-env
+          source test-env/bin/activate
+          
+          # 从 TestPyPI 安装（使用 PyPI 作为额外索引以获取依赖）
+          pip install --index-url https://test.pypi.org/simple/ \
+                      --extra-index-url https://pypi.org/simple/ \
+                      deep-solutions
+          
+          # 验证安装
+          python -c "import deep_solutions; print(f'Version: {deep_solutions.__version__}')"
+          python -c "from deep_solutions import hello_world; print(hello_world())"
+          
+          deactivate
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-testpypi
+          path: dist/

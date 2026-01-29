@@ -6,11 +6,11 @@ Utility functions for deep-solutions package.
 def format_output(data, prefix: str = "Result"):
     """
     Format output data with a prefix.
-    
+
     Args:
         data: Data to format.
         prefix: Prefix string.
-        
+
     Returns:
         str: Formatted output.
     """
