@@ -34,6 +34,7 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+src/deep_solutions/_version.py
 
 # Virtual environments
 venv/
