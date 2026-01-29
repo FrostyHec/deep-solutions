@@ -43,12 +43,20 @@ env.bak/
 venv.bak/
 .conda/
 
+# Template
+src/deep_solutions/_version.py
+
+# Linter
+.ruff_cache
+
 # Testing
 .pytest_cache/
 .coverage
 htmlcov/
 .tox/
 .nox/
+pytest-report.xml
+coverage.xml
 
 # MyPy
 .mypy_cache/

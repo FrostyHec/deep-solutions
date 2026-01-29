@@ -1,0 +1,56 @@
+# =============================================================================
+# Test Report Workflow - 发布测试结果到 PR
+# 触发条件: CI workflow 完成后
+# 功能: 下载测试结果并使用 test-reporter 发布到 PR
+# 策略: 根据触发事件动态调整测试版本（PR 只报告 3.8，main 报告全部）
+# 安全模型: 本工作流运行在主仓库上下文，可安全使用写权限
+# =============================================================================
+
+name: Test Report
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types:
+      - completed
+
+permissions:
+  checks: write          # 创建/更新 Check Run
+  pull-requests: write   # 在 PR 中评论
+  actions: read          # 读取 workflow run 信息
+
+jobs:
+  report:
+    name: Publish Test Results
+    runs-on: ubuntu-latest
+    if: |
+      github.event.workflow_run.conclusion == 'success' ||
+      github.event.workflow_run.conclusion == 'failure'
+    
+    strategy:
+      matrix:
+        # 根据触发事件决定报告哪些版本
+        # main 分支: 全矩阵，PR: 仅 3.8
+        python-version: ${{ github.event.workflow_run.event == 'push' && github.event.workflow_run.head_branch == 'main' && fromJSON('["3.8", "3.9", "3.10", "3.11", "3.12"]') || fromJSON('["3.8"]') }}
+    
+    steps:
+      - name: Download test results
+        uses: actions/download-artifact@v4
+        with:
+          name: pytest-results-${{ matrix.python-version }}-${{ github.event.workflow_run.id }}
+          path: test-results
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
+
+      - name: Publish Test Report
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: PyTest Results (Python ${{ matrix.python-version }})
+          path: test-results/pytest-report.xml
+          reporter: java-junit
+          fail-on-error: false
+          fail-on-empty: false
+          list-suites: all
+          list-tests: all
+          max-annotations: 10

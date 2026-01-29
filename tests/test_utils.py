@@ -1,7 +1,7 @@
 """
 Tests for utils module.
 """
-import pytest
+
 from deep_solutions import format_output
 
 

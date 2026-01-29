@@ -1,8 +1,8 @@
 """
 Tests for core module.
 """
-import pytest
-from deep_solutions import hello_world, DeepSolution
+
+from deep_solutions import DeepSolution, hello_world
 
 
 def test_hello_world():
@@ -16,7 +16,7 @@ def test_deep_solution_init():
     """Test DeepSolution initialization."""
     solution = DeepSolution("test")
     assert solution.name == "test"
-    
+
     default_solution = DeepSolution()
     assert default_solution.name == "default"
 
