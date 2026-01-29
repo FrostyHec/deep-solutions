@@ -49,6 +49,8 @@ venv.bak/
 htmlcov/
 .tox/
 .nox/
+pytest-report.xml
+coverage.xml
 
 # MyPy
 .mypy_cache/
