@@ -118,10 +118,30 @@ graph TB
 
 在提交 PR 前，建议先在本地运行：
 
-```bash
-# 完整检查（包括 format, lint, type-check, test）
-bash scripts/check.sh
+### 快速检查（推荐）
 
+```bash
+# 运行所有代码质量检查（format, lint, type-check, test）
+bash scripts/check.sh
+```
+
+### 完整 CI 模拟
+
+```bash
+# 模拟 CI 的所有步骤（包括构建检查）
+bash scripts/ci-local.sh
+```
+
+这个脚本会：
+1. ✅ 检查代码格式（Ruff format）
+2. ✅ 运行 Linter（Ruff check）
+3. ✅ 类型检查（MyPy）
+4. ✅ 运行测试并生成报告
+5. ✅ 构建包并验证
+
+### 仅运行测试
+
+```bash
 # 仅运行测试并生成报告
 pytest --junitxml=pytest-report.xml --cov=deep_solutions --cov-report=xml --cov-report=term-missing
 ```
