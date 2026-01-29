@@ -1,0 +1,76 @@
+version: 2
+updates:
+  # Python dependencies via pip
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "03:00"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "FrostyHec"
+    assignees:
+      - "FrostyHec"
+    commit-message:
+      prefix: "build(deps)"
+      prefix-development: "build(deps-dev)"
+      include: "scope"
+    pull-request-branch-name:
+      separator: "/"
+    allow:
+      - dependency-type: "all"
+    ignore:
+      # Add packages to ignore if needed (example: numpy@2.0.0)
+    
+    # Auto-merge minor and patch updates when CI passes
+    auto-merge: true
+    
+    # Group dependencies to reduce PR count
+    groups:
+      dev-dependencies:
+        dependency-types:
+          - "development"
+        update-types:
+          - "version-update:semver-minor"
+          - "version-update:semver-patch"
+      production-minor-patch:
+        dependency-types:
+          - "production"
+        update-types:
+          - "version-update:semver-minor"
+          - "version-update:semver-patch"
+      production-major:
+        dependency-types:
+          - "production"
+        update-types:
+          - "version-update:semver-major"
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "04:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "FrostyHec"
+    assignees:
+      - "FrostyHec"
+    commit-message:
+      prefix: "ci(actions)"
+      include: "scope"
+    
+    # Auto-merge all GitHub Actions updates when CI passes
+    auto-merge: true
+    
+    # Group all actions updates together
+    groups:
+      actions:
+        patterns:
+          - "*"
+        update-types:
+          - "version-update:semver-minor"
+          - "version-update:semver-patch"
+          - "version-update:semver-major"
