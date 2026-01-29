@@ -129,7 +129,6 @@ Contributions are welcome! Please see our [Developer Guide](docs/developers_guid
 
 ## 📧 Contact
 
-- **Author**: ZDHuang
 - **GitHub**: [@FrostyHec](https://github.com/FrostyHec)
 - **Repository**: [deep-solutions](https://github.com/FrostyHec/deep-solutions)
 
