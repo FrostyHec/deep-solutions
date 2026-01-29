@@ -1,9 +1,10 @@
 ---
 name: Documentation Improvement
 about: Suggest improvements or report issues with documentation
-title: '[DOCS] '
-labels: 'documentation'
+title: "[DOCS] "
+labels: documentation
 assignees: ''
+
 ---
 
 ## Documentation Location
