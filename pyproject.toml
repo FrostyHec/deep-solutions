@@ -41,6 +41,8 @@ dev = [
     "twine>=4.0.0",
     "tox>=4.0.0",
     "tox-gh>=1.0.0",
+    "commitizen>=3.0.0",
+    "pre-commit>=3.0.0",
 ]
 docs = [
     "sphinx>=6.0.0",
@@ -62,7 +64,7 @@ include = ["deep_solutions*"]
 exclude = ["tests*"]
 
 # ============================================================
-# setuptools-scm: 从 Git Tag 自动获取版本号
+# setuptools-scm: Auto-generate version from Git Tag
 # ============================================================
 [tool.setuptools_scm]
 write_to = "src/deep_solutions/_version.py"
@@ -98,7 +100,7 @@ __version_tuple__ = version_tuple = {version_tuple!r}
 """
 
 # ============================================================
-# Ruff: 代码格式化和 Lint（替代 black/isort/flake8）
+# Ruff: Code formatting and Lint (replaces black/isort/flake8)
 # ============================================================
 [tool.ruff]
 target-version = "py38"
@@ -129,7 +131,7 @@ skip-magic-trailing-comma = false
 line-ending = "auto"
 
 # ============================================================
-# pytest 配置
+# pytest configuration
 # ============================================================
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -139,10 +141,20 @@ python_functions = ["test_*"]
 addopts = "-v --cov=deep_solutions --cov-report=term-missing"
 
 # ============================================================
-# mypy 类型检查配置
+# mypy type check configuration
 # ============================================================
 [tool.mypy]
 python_version = "3.8"
 warn_return_any = true
 warn_unused_configs = true
 ignore_missing_imports = true
+
+# ============================================================
+# Commitizen configuration
+# ============================================================
+[tool.commitizen]
+name = "cz_conventional_commits"
+version_provider = "scm"
+tag_format = "v$version"
+update_changelog_on_bump = true
+changelog_file = "CHANGELOG.md"

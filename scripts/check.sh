@@ -1,19 +1,19 @@
 #!/bin/bash
 # =============================================================================
-# deep-solutions 开发者一键检查脚本
-# 用于在提交/发布前运行完整的代码检查流程
+# deep-solutions Developer Check Script
+# Run complete code check pipeline before commit/publish
 # =============================================================================
 
-set -e  # 遇到错误立即退出
+set -e  # Exit on error
 
-# 颜色定义
+# Color definitions
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# 打印带颜色的消息
+# Print colored messages
 print_header() {
     echo ""
     echo -e "${BLUE}============================================================${NC}"
@@ -34,7 +34,7 @@ print_warning() {
     echo -e "${YELLOW}⚠ $1${NC}"
 }
 
-# 获取脚本所在目录的上级目录（项目根目录）
+# Get project root directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 
@@ -42,69 +42,82 @@ cd "$PROJECT_ROOT"
 
 echo ""
 echo -e "${BLUE}========================================${NC}"
-echo -e "${BLUE}  deep-solutions 代码检查脚本${NC}"
+echo -e "${BLUE}  deep-solutions Code Check Script${NC}"
 echo -e "${BLUE}========================================${NC}"
 echo ""
-echo "项目目录: $PROJECT_ROOT"
+echo "Project directory: $PROJECT_ROOT"
 echo ""
 
 # =============================================================================
-# Step 1: 代码格式化
+# Step 1: Code Formatting
 # =============================================================================
-print_header "Step 1/4: 代码格式化 (ruff format)"
+print_header "Step 1/5: Code Formatting (ruff format)"
 
-echo "正在格式化 src/ 和 tests/ ..."
+echo "Formatting src/ and tests/ ..."
 ruff format src/ tests/
-print_success "代码格式化完成"
+print_success "Code formatting complete"
 
 # =============================================================================
-# Step 2: Lint 检查
+# Step 2: Lint Check
 # =============================================================================
-print_header "Step 2/4: Lint 检查 (ruff check)"
+print_header "Step 2/5: Lint Check (ruff check)"
 
-echo "正在检查代码问题..."
+echo "Checking code issues..."
 if ruff check src/ tests/; then
-    print_success "Lint 检查通过"
+    print_success "Lint check passed"
 else
-    print_error "Lint 检查失败"
+    print_error "Lint check failed"
     echo ""
-    echo "提示: 运行 'ruff check --fix src/ tests/' 自动修复部分问题"
+    echo "Tip: Run 'ruff check --fix src/ tests/' to auto-fix some issues"
     exit 1
 fi
 
 # =============================================================================
-# Step 3: 类型检查
+# Step 3: Type Check
 # =============================================================================
-print_header "Step 3/4: 类型检查 (mypy)"
+print_header "Step 3/5: Type Check (mypy)"
 
-echo "正在进行类型检查..."
+echo "Running type check..."
 if mypy src/; then
-    print_success "类型检查通过"
+    print_success "Type check passed"
 else
-    print_error "类型检查失败"
+    print_error "Type check failed"
     exit 1
 fi
 
 # =============================================================================
-# Step 4: 运行测试
+# Step 4: Language Check
 # =============================================================================
-print_header "Step 4/4: 运行测试 (pytest)"
+print_header "Step 4/5: Language Check"
 
-echo "正在运行测试..."
+echo "Checking for Chinese characters in source code..."
+if python scripts/check_language.py; then
+    print_success "Language check passed"
+else
+    print_error "Language check failed"
+    exit 1
+fi
+
+# =============================================================================
+# Step 5: Run Tests
+# =============================================================================
+print_header "Step 5/5: Run Tests (pytest)"
+
+echo "Running tests..."
 if pytest; then
-    print_success "所有测试通过"
+    print_success "All tests passed"
 else
-    print_error "测试失败"
+    print_error "Tests failed"
     exit 1
 fi
 
 # =============================================================================
-# 完成
+# Complete
 # =============================================================================
 echo ""
 echo -e "${GREEN}========================================${NC}"
-echo -e "${GREEN}  ✓ 所有检查通过！${NC}"
+echo -e "${GREEN}  ✓ All checks passed!${NC}"
 echo -e "${GREEN}========================================${NC}"
 echo ""
-echo "代码已准备好提交或发布。"
+echo "Code is ready to commit or publish."
 echo ""

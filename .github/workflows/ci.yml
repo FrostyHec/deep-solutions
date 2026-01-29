@@ -1,14 +1,15 @@
 # =============================================================================
-# CI Workflow - PR 检查
-# 触发条件: Pull Request 和 push 到 main 分支
-# 测试策略:
-#   - PR/push: 仅测试 Python 3.8 (最小版本，快速反馈)
-#   - main 分支: 全矩阵测试 Python 3.8-3.12 (完整回归测试)
-# 功能:
-#   1. 代码格式检查 (ruff)
-#   2. 类型检查 (mypy)
-#   3. 运行测试 (pytest + tox)
-# 安全模型: 本工作流不需要写权限，可安全运行 fork PR 代码
+# CI Workflow - PR Check
+# Trigger: Pull Request and push to main branch
+# Testing strategy:
+#   - PR/push: Test only Python 3.8 (minimum version, fast feedback)
+#   - main branch: Full matrix test Python 3.8-3.12 (complete regression)
+# Features:
+#   1. Code format check (ruff)
+#   2. Type check (mypy)
+#   3. Language check (no Chinese in source code)
+#   4. Run tests (pytest + tox)
+# Security: This workflow doesn't need write permission, safe for fork PRs
 # =============================================================================
 
 name: CI
@@ -19,17 +20,17 @@ on:
   push:
     branches: [main]
 
-# 自动取消同一分支的旧任务
+# Auto-cancel old tasks on same branch
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
-  contents: read  # 只需要读权限
+  contents: read  # Read permission only
 
 jobs:
   # ===========================================================================
-  # 代码质量检查
+  # Code Quality Check
   # ===========================================================================
   lint:
     name: Lint & Format Check
@@ -65,7 +66,26 @@ jobs:
         run: ruff check src/ tests/
 
   # ===========================================================================
-  # 类型检查
+  # Language Check - No Chinese in source code
+  # ===========================================================================
+  language-check:
+    name: Language Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.8"
+
+      - name: Run language check
+        run: python scripts/check_language.py
+
+  # ===========================================================================
+  # Type Check
   # ===========================================================================
   type-check:
     name: Type Check
@@ -98,9 +118,9 @@ jobs:
         run: mypy src/
 
   # ===========================================================================
-  # 测试 - 差异化策略
-  # PR: 仅测试 Python 3.8 (快速反馈)
-  # main 分支: 全矩阵测试 Python 3.8-3.12 (完整回归)
+  # Test - Differentiated Strategy
+  # PR: Test only Python 3.8 (fast feedback)
+  # main branch: Full matrix test Python 3.8-3.12 (complete regression)
   # ===========================================================================
   test:
     name: Test (Python ${{ matrix.python-version }})
@@ -108,14 +128,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # PR 只测试最小版本，main 分支测试全矩阵
+        # PR tests minimum version only, main branch tests full matrix
         python-version: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && fromJSON('["3.8", "3.9", "3.10", "3.11", "3.12"]') || fromJSON('["3.8"]') }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # setuptools-scm 需要 git 历史
+          fetch-depth: 0  # setuptools-scm needs git history
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
@@ -148,28 +168,28 @@ jobs:
           path: pytest-report.xml
           retention-days: 1
 
-      # 只在 Python 3.12 上上传覆盖率报告
+      # Upload coverage report for all Python versions
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
-        if: always() && matrix.python-version == '3.12'
+        if: always()
         with:
           name: coverage-${{ matrix.python-version }}-${{ github.run_id }}
           path: coverage.xml
           retention-days: 1
 
   # ===========================================================================
-  # 构建检查
+  # Build Check
   # ===========================================================================
   build:
     name: Build Check
     runs-on: ubuntu-latest
-    needs: [lint, type-check, test]
+    needs: [lint, language-check, type-check, test]
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # setuptools-scm 需要完整的 git 历史
+          fetch-depth: 0  # setuptools-scm needs full git history
 
       - name: Set up Python
         uses: actions/setup-python@v5

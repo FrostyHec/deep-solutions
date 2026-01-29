@@ -10,11 +10,11 @@ from .utils import format_output
 
 
 def _get_package_version() -> str:
-    """获取包版本号，优先从已安装的包元数据读取。"""
+    """Get package version, preferring installed package metadata."""
     try:
         return get_version(__name__)
     except PackageNotFoundError:
-        # 未安装时（仅克隆源码），从 setuptools-scm 生成的文件读取
+        # When not installed (only cloned source), read from setuptools-scm generated file
         try:
             from ._version import version as scm_version
 

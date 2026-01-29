@@ -43,9 +43,16 @@ print(formatted)  # Output: Output: result data
 
 ## 📚 Documentation
 
-- [Developer Guide](docs/developers.md) - How to contribute to this project
-- [PyPI Publishing Guide](docs/pypi_publishing.md) - How to publish to PyPI
-- [API Exposure Guide](.nonpublic/prompts/dev/v0.0.1/repo_init/A002_API暴露方案.md) - Best practices for API design
+| Document | Description |
+|----------|-------------|
+| [Developer Guide](docs/developers_guide.md) | How to clone, setup environment, and contribute |
+| [Project Structure](docs/project_structure.md) | Directory structure, dependency management, Python version requirements |
+| [Code Standards](docs/code_standards.md) | Commit conventions, PR workflow, merge requirements |
+| [Local Testing Guide](docs/local_testing.md) | Using check.sh, tox, pytest, etc. |
+| [CI Workflow](docs/ci_workflow.md) | GitHub Actions CI/CD documentation |
+| [Publishing Guide](docs/publishing.md) | How to publish to PyPI |
+
+> **Note**: Chinese documentation is available in [docs/zh-CN/](docs/zh-CN/)
 
 ## 🛠️ Development
 
@@ -107,13 +114,18 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please see our [Developer Guide](docs/developers.md) for details on how to contribute.
+Contributions are welcome! Please see our [Developer Guide](docs/developers_guide.md) for details.
+
+> **⚠️ Important**: Development must be done in **Python 3.8** environment. See [Project Structure](docs/project_structure.md#python-version-requirements) for details.
 
 1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'feat: add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+3. Run checks before commit (`./scripts/check.sh`)
+4. Commit your changes (`git commit -m 'feat: add amazing feature'`)
+5. Push to the branch (`git push origin feature/amazing-feature`)
+6. Open a Pull Request
+
+**Merge Requirements**: PRs must pass all CI checks and receive at least one review approval.
 
 ## 📧 Contact
 
