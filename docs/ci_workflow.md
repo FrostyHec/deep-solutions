@@ -8,19 +8,42 @@
 
 ```mermaid
 graph TB
-  subgraph Runner A — 运行测试（无写权限）
-    A1[pull_request 触发]-->A2[Checkout PR 代码]
-    A2-->A3[运行 Lint/Type-Check/Pytest]
-    A3-->A4[生成 pytest-report.xml]
-    A4-->A5[上传 artifact]
+  subgraph PR测试 — 快速反馈
+    A1[PR 触发]-->A2[Lint + Type Check]
+    A2-->A3[Test Python 3.8 only]
+    A3-->A4[Build Check]
   end
 
-  subgraph Runner B — 发布结果（主仓库权限）
-    B1[workflow_run 触发]-->B2[下载 artifact]
-    B2-->B3[解析 junit 报告]
-    B3-->B4[创建 Check Run]
+  subgraph Main分支 — 完整回归
+    B1[Push to main]-->B2[Lint + Type Check]
+    B2-->B3[Test Python 3.8-3.12 全矩阵]
+    B3-->B4[Build Check]
+  end
+
+  subgraph 测试报告
+    C1[workflow_run 触发]-->C2[下载 artifact]
+    C2-->C3[发布 Check Run]
   end
 ```
+
+## 差异化测试策略
+
+我们采用 **差异化测试策略** 以平衡速度和覆盖度：
+
+| 触发场景 | Python 版本 | 时长 | 目的 |
+|---------|------------|------|------|
+| **PR / 普通 push** | 仅 3.8 (最小版本) | < 3 分钟 | 快速反馈，验证基本兼容性 |
+| **Push to main** | 3.8, 3.9, 3.10, 3.11, 3.12 | ~5-7 分钟 | 完整回归，确保所有版本兼容 |
+
+### 为什么这样设计？
+
+✅ **快速反馈**: PR 开发过程中，只需验证最小版本即可快速迭代
+
+✅ **资源节省**: 减少 80% 的 CI 时间和计算资源消耗
+
+✅ **充分测试**: main 分支合并后仍会进行全矩阵测试，确保质量
+
+✅ **早发现问题**: Python 3.8 兼容性最严格，通过则大概率全部通过
 
 ## 工作流文件
 
@@ -35,16 +58,25 @@ graph TB
 **任务：**
 1. **lint** - 代码格式和 Lint 检查（Ruff）
 2. **type-check** - 类型检查（MyPy）
-3. **test** - 运行测试（Python 3.8-3.12）
+3. **test** - 运行测试
+   - **PR**: 仅 Python 3.8
+   - **main**: Python 3.8-3.12 全矩阵
    - 生成 JUnit XML 报告
-   - 生成覆盖率报告
+   - 生成覆盖率报告（仅 3.12）
    - 上传为 artifact（保留 1 天）
 4. **build** - 构建检查（验证包可以正常构建）
+
+**性能优化：**
+- ✅ 依赖缓存（pip cache）
+- ✅ 并行测试（matrix 策略）
+- ✅ 自动取消旧任务（concurrency）
+- ✅ 覆盖率仅在 Python 3.12 上传
 
 **特点：**
 - ✅ 可安全运行来自 fork 的代码
 - ✅ 不暴露任何 secrets
-- ✅ 测试失败会导致 workflow 失败
+- ✅ PR 快速反馈（< 3 分钟）
+- ✅ main 分支完整测试（~5-7 分钟）
 
 ### 2. `.github/workflows/report.yml` - 测试报告发布
 
@@ -58,12 +90,14 @@ graph TB
 **任务：**
 - 下载 CI 生成的测试报告
 - 使用 `dorny/test-reporter` 发布到 PR
-- 为每个 Python 版本创建独立的 Check Run
+- **PR**: 仅为 Python 3.8 创建 Check Run
+- **main**: 为所有版本创建 Check Run
 
 **特点：**
 - ✅ 运行在主仓库上下文（受信任代码）
 - ✅ 只处理静态数据（junit XML），不执行 PR 代码
 - ✅ 即使 artifact 被篡改，也只是解析失败，不会执行恶意代码
+- ✅ 动态适应测试策略（PR vs main）
 
 ## 安全模型说明
 
@@ -118,12 +152,42 @@ graph TB
 
 在提交 PR 前，建议先在本地运行：
 
-### 快速检查（推荐）
+### 快速检查（推荐日常使用）
 
 ```bash
 # 运行所有代码质量检查（format, lint, type-check, test）
 bash scripts/check.sh
 ```
+
+### 使用 Tox 进行多版本测试
+
+我们使用 Tox 统一本地和 CI 的测试环境：
+
+```bash
+# 安装 tox
+pip install -e ".[dev]"
+
+# 测试当前 Python 版本
+tox -e py
+
+# 测试特定版本
+tox -e py38
+
+# 全矩阵测试（如果安装了所有版本）
+tox
+
+# 并行运行（推荐）
+tox -p auto
+
+# 只运行 lint 和 type check
+tox -e lint,type
+```
+
+**详细指南**: 查看 `docs/tox_guide.md` 了解：
+- 如何安装多个 Python 版本
+- Tox 的高级用法
+- 性能优化技巧
+- 故障排查
 
 ### 完整 CI 模拟
 
