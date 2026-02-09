@@ -4,12 +4,11 @@ Language checker for deep-solutions project.
 
 This script checks:
 1. Source code contains only English (no Chinese characters in comments/strings)
-2. English documentation exists for each doc file
-3. Chinese documentation exists (warning only if missing)
+2. Documentation requirements (via document_checker module)
 
 Exit codes:
-- 0: All checks passed (may have warnings)
-- 1: Errors found (Chinese in source code)
+- 0: All checks passed
+- 1: Errors found
 """
 
 import argparse
@@ -18,6 +17,15 @@ import re
 import sys
 from pathlib import Path
 from typing import List, Tuple
+
+# Import document checker module
+try:
+    from document_checker import DocumentChecker
+except ImportError:
+    # Try relative import if running as script
+    import sys
+    sys.path.insert(0, str(Path(__file__).parent))
+    from document_checker import DocumentChecker
 
 # Regex pattern for Chinese characters (CJK Unified Ideographs)
 # Using proper Unicode escapes for extended ranges
@@ -49,7 +57,8 @@ class LanguageChecker:
         self.root_dir = Path(root_dir)
         self.verbose = verbose
         self.errors: List[str] = []
-        self.warnings: List[str] = []
+        # Initialize document checker
+        self.doc_checker = DocumentChecker(root_dir, verbose)
 
     def log(self, message: str) -> None:
         """Print message if verbose mode is enabled."""
@@ -183,96 +192,6 @@ class LanguageChecker:
 
         return files_with_chinese
 
-    def check_documentation(self) -> Tuple[int, int]:
-        """
-        Check documentation for bilingual support.
-
-        Scans all files in docs/ directory (baseline for English files),
-        checks if corresponding files exist in docs/zh-CN/.
-        Also reports extra files in zh-CN that don't have English versions.
-
-        Returns (missing_chinese_count, extra_chinese_count).
-        """
-        self.log("\n=== Checking documentation for bilingual support ===")
-        docs_dir = self.root_dir / "docs"
-        zh_cn_dir = docs_dir / "zh-CN"
-
-        missing_chinese = 0
-        extra_chinese = 0
-
-        # Ensure directories exist
-        if not docs_dir.exists():
-            warning_msg = f"WARNING: docs/ directory does not exist"
-            self.warnings.append(warning_msg)
-            return 0, 0
-
-        if not zh_cn_dir.exists():
-            warning_msg = f"WARNING: docs/zh-CN/ directory does not exist"
-            self.warnings.append(warning_msg)
-            return 0, 0
-
-        # Get all files in English docs (excluding subdirectories)
-        en_files = set()
-        for item in docs_dir.iterdir():
-            if item.is_file() and not item.name.startswith('.'):
-                en_files.add(item.name)
-
-        # Get all files in Chinese docs
-        zh_files = set()
-        for item in zh_cn_dir.iterdir():
-            if item.is_file() and not item.name.startswith('.'):
-                zh_files.add(item.name)
-
-        # Check for missing Chinese versions
-        for en_file in sorted(en_files):
-            self.log(f"✓ Found: docs/{en_file}")
-            if en_file not in zh_files:
-                warning_msg = f"WARNING: Missing Chinese documentation: docs/zh-CN/{en_file}"
-                self.warnings.append(warning_msg)
-                print(warning_msg)
-                missing_chinese += 1
-            else:
-                self.log(f"✓ Found: docs/zh-CN/{en_file}")
-
-        # Check for extra files in Chinese docs (not in English)
-        for zh_file in sorted(zh_files):
-            if zh_file not in en_files:
-                warning_msg = f"WARNING: Extra Chinese documentation without English version: docs/zh-CN/{zh_file}"
-                self.warnings.append(warning_msg)
-                print(warning_msg)
-                extra_chinese += 1
-
-        return missing_chinese, extra_chinese
-
-    def check_readme(self) -> Tuple[bool, bool]:
-        """
-        Check README files exist.
-
-        Returns (english_exists, chinese_exists).
-        """
-        self.log("\n=== Checking README files ===")
-        readme_en = self.root_dir / "README.md"
-        readme_zh = self.root_dir / "README.zh-CN.md"
-
-        en_exists = readme_en.exists()
-        zh_exists = readme_zh.exists()
-
-        if not en_exists:
-            error_msg = "ERROR: Missing English README.md"
-            self.errors.append(error_msg)
-            print(error_msg)
-        else:
-            self.log("✓ Found: README.md")
-
-        if not zh_exists:
-            warning_msg = "WARNING: Missing Chinese README.zh-CN.md"
-            self.warnings.append(warning_msg)
-            print(warning_msg)
-        else:
-            self.log("✓ Found: README.zh-CN.md")
-
-        return en_exists, zh_exists
-
     def run_all_checks(self) -> int:
         """
         Run all language checks.
@@ -289,40 +208,26 @@ class LanguageChecker:
         # Check CI/CD configuration
         chinese_in_ci = self.check_ci_configs()
 
-        # Check documentation
-        missing_zh_docs, extra_zh_docs = self.check_documentation()
+        # Check documentation (using document_checker module)
+        doc_exit_code = self.doc_checker.run_all_checks()
 
-        # Check README
-        readme_en_exists, readme_zh_exists = self.check_readme()
+        # Collect all errors
+        all_errors = self.errors + self.doc_checker.errors
 
         # Summary
         print("\n" + "=" * 60)
         print("Summary")
         print("=" * 60)
 
-        if self.errors:
-            print(f"\n❌ Errors: {len(self.errors)}")
-            for error in self.errors:
+        if all_errors:
+            print(f"\n❌ Errors: {len(all_errors)}")
+            for error in all_errors:
                 print(f"  - {error}")
-
-        if self.warnings:
-            print(f"\n⚠️  Warnings: {len(self.warnings)}")
-            for warning in self.warnings:
-                print(f"  - {warning}")
-
-        if not self.errors and not self.warnings:
+            print("\n❌ Language checks FAILED!")
+            return 1
+        else:
             print("\n✅ All language checks passed!")
-
-        # Return error code only for actual errors (not warnings)
-        return 1 if self.errors else 0
-
-    def get_warnings_json(self) -> str:
-        """Return warnings as JSON for CI integration."""
-        import json
-
-        return json.dumps(
-            {"warnings": self.warnings, "errors": self.errors}, indent=2
-        )
+            return 0
 
 
 def main():
@@ -337,9 +242,6 @@ def main():
     )
     parser.add_argument(
         "--verbose", "-v", action="store_true", help="Enable verbose output"
-    )
-    parser.add_argument(
-        "--json", "-j", action="store_true", help="Output warnings as JSON"
     )
     parser.add_argument(
         "--source-only",
@@ -361,15 +263,10 @@ def main():
     if args.source_only:
         exit_code = 1 if checker.check_source_code() > 0 else 0
     elif args.docs_only:
-        missing_en, _ = checker.check_documentation()
-        checker.check_readme()
-        exit_code = 1 if missing_en > 0 else 0
+        # Use document_checker directly
+        exit_code = checker.doc_checker.run_all_checks()
     else:
         exit_code = checker.run_all_checks()
-
-    if args.json:
-        print("\n--- JSON Output ---")
-        print(checker.get_warnings_json())
 
     sys.exit(exit_code)
 

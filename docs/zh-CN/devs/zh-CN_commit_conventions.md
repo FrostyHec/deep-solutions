@@ -209,6 +209,6 @@ cz changelog
 
 ## 相关文档
 
-- [代码规范](./code_standards.md)
-- [开发者指南](./developers_guide.md)
-- [语言规范](./language_guidelines.md)
+- [代码规范](./zh-CN_code_standards.md)
+- [开发者指南](./zh-CN_developers_guide.md)
+- [语言规范](./zh-CN_language_guidelines.md)

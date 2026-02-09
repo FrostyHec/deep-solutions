@@ -72,22 +72,24 @@ def process_data(data: List[int]) -> List[int]:
 
 ```
 docs/
-├── developers_guide.md      # 英文（必须）
-├── project_structure.md     # 英文（必须）
-├── code_standards.md        # 英文（必须）
-├── ...
-└── zh-CN/                   # 中文翻译
-    ├── developers_guide.md  # 中文（推荐）
-    ├── project_structure.md
-    └── ...
+├── en-US/                       # 英文文档
+│   ├── devs/                    # 开发指南 (en-US_*.md)
+│   ├── user-guide/              # 用户教程 (en-US_*.md)
+│   ├── design/                  # 架构文档 (en-US_*.md)
+│   └── index.md
+└── zh-CN/                       # 中文翻译
+    ├── devs/                    # 开发指南 (zh-CN_*.md)
+    ├── user-guide/              # 用户指南 (zh-CN_*.md)
+    ├── design/                  # 设计文档 (zh-CN_*.md)
+    └── index.md
 ```
 
 ### 要求
 
 | 文档 | 英文 | 中文 |
 |------|------|------|
-| 核心文档 (`docs/*.md`) | ✅ 必须 | - |
-| 中文翻译 (`docs/zh-CN/*.md`) | - | ⚠️ 推荐 |
+| 英文文档 (`docs/en-US/**/*.md`) | ✅ 必须 | - |
+| 中文文档 (`docs/zh-CN/**/*.md`) | - | ⚠️ 推荐 |
 | README.md | ✅ 必须 | - |
 | README.zh-CN.md | - | ⚠️ 推荐 |
 
@@ -136,16 +138,20 @@ Add data validation pipeline for input processing.
 
 ### 自动检查
 
-项目包含自动语言检查：
+项目包含自动语言和文档检查：
 
-1. **源代码检查**：检测 `src/` 和 `tests/` 中的中文字符
-2. **文档检查**：验证英文文档存在，如果中文缺失则警告
-3. **CI 集成**：语言检查作为 lint job 的一部分运行
+1. **源代码检查** (`check_language.py`)：检测 `src/` 和 `tests/` 中的中文字符
+2. **文档检查** (`document_checker.py`)：
+   - 递归验证双语结构 (en-US ↔ zh-CN)
+   - 检查缺失的文档对应版本
+   - 检测空文档引用
+   - 确保所有目录中存在 `index.md`
+3. **CI 集成**：所有检查作为 CI 管道的一部分运行
 
 ### 本地运行
 
 ```bash
-# 运行所有语言检查
+# 运行所有语言检查（包括文档）
 python scripts/check_language.py
 
 # 仅检查源代码
@@ -153,9 +159,12 @@ python scripts/check_language.py --source-only
 
 # 仅检查文档
 python scripts/check_language.py --docs-only
+# 或直接：
+python scripts/document_checker.py
 
 # 详细输出
 python scripts/check_language.py --verbose
+python scripts/document_checker.py --verbose
 ```
 
 ### CI 行为
@@ -164,9 +173,11 @@ python scripts/check_language.py --verbose
 |------|----------|
 | 源代码中有中文 | ❌ 错误 - CI 失败 |
 | 缺少英文文档 | ❌ 错误 - CI 失败 |
-| 缺少中文文档 | ⚠️ 警告 - CI 通过但有警告 |
+| 缺少中文文档 | ❌ 错误 - CI 失败 |
+| 空文档引用 | ❌ 错误 - CI 失败 |
+| 缺少 `index.md` 文件 | ❌ 错误 - CI 失败 |
 
-警告会在 PR check run 中报告以提高可见性。
+**所有文档问题现在都被视为错误**，而非警告。这确保了双语对齐并防止空链接。
 
 ---
 
@@ -174,8 +185,8 @@ python scripts/check_language.py --verbose
 
 我们欢迎改进中文翻译的贡献：
 
-1. 在 `docs/zh-CN/` 中创建/更新相应文件
-2. 保持结构与英文版本一致
+1. 在 `docs/zh-CN/{subdir}/` 中创建/更新相应文件，使用 `zh-CN_` 前缀
+2. 保持结构与 `docs/en-US/{subdir}/` 中的英文版本一致
 3. 提交类型为 `docs` 的 PR
 
 示例：
@@ -187,6 +198,6 @@ docs(zh-CN): add Chinese translation for developers_guide
 
 ## 相关文档
 
-- [Commit 规范](./commit_conventions.md)
-- [代码规范](./code_standards.md)
-- [开发者指南](./developers_guide.md)
+- [Commit 规范](./zh-CN_commit_conventions.md)
+- [代码规范](./zh-CN_code_standards.md)
+- [开发者指南](./zh-CN_developers_guide.md)

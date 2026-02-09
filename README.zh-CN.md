@@ -47,14 +47,16 @@ print(formatted)  # 输出: Output: result data
 
 | 文档 | 内容 |
 |------|------|
-| [开发者入门指南](docs/zh-CN/developers_guide.md) | 如何克隆项目、配置环境、开始贡献 |
-| [项目结构说明](docs/zh-CN/project_structure.md) | 目录结构、依赖管理、Python 版本要求 |
-| [代码规范](docs/zh-CN/code_standards.md) | 提交规范、PR 流程、合并要求 |
-| [本地测试指南](docs/zh-CN/local_testing.md) | check.sh、tox、pytest 等使用方法 |
-| [CI 工作流](docs/zh-CN/ci_workflow.md) | GitHub Actions CI/CD 说明 |
-| [发布指南](docs/zh-CN/publishing.md) | 如何发布到 PyPI |
-| [提交规范](docs/zh-CN/commit_conventions.md) | Conventional Commits 规范 |
-| [语言规范](docs/zh-CN/language_guidelines.md) | 代码和文档语言要求 |
+| [贡献指南](docs/zh-CN/devs/zh-CN_contributing.md) | **新手开始** — 分步指南 |
+| [开发者入门指南](docs/zh-CN/devs/zh-CN_developers_guide.md) | 如何克隆项目、配置环境、开始贡献 |
+| [项目结构说明](docs/zh-CN/devs/zh-CN_project_structure.md) | 目录结构、依赖管理、Python 版本要求 |
+| [代码规范](docs/zh-CN/devs/zh-CN_code_standards.md) | 提交规范、PR 流程、合并要求 |
+| [本地测试指南](docs/zh-CN/devs/zh-CN_local_testing.md) | check.sh、tox、pytest 等使用方法 |
+| [CI 工作流](docs/zh-CN/devs/zh-CN_ci_workflow.md) | GitHub Actions CI/CD 说明 |
+| [发布指南](docs/zh-CN/devs/zh-CN_publishing.md) | 如何发布到 PyPI |
+| [提交规范](docs/zh-CN/devs/zh-CN_commit_conventions.md) | Conventional Commits 规范 |
+| [语言规范](docs/zh-CN/devs/zh-CN_language_guidelines.md) | 代码和文档语言要求 |
+| [Agent 开发指南](docs/zh-CN/devs/zh-CN_agent.md) | 面向开发者和 AI 代理的技术参考 |
 
 ## 🛠️ 开发
 
@@ -116,9 +118,9 @@ mypy src/
 
 ## 🤝 贡献
 
-欢迎贡献！请查看我们的 [开发者入门指南](docs/zh-CN/developers_guide.md) 了解详情。
+欢迎贡献！请查看我们的 [贡献指南](docs/zh-CN/devs/zh-CN_contributing.md) 了解详情。
 
-> **⚠️ 重要**: 开发必须在 **Python 3.8** 环境下进行。详见 [项目结构说明](docs/zh-CN/project_structure.md#python-版本要求)。
+> **⚠️ 重要**: 开发必须在 **Python 3.8** 环境下进行。详见 [项目结构说明](docs/zh-CN/devs/zh-CN_project_structure.md#python-版本要求)。
 
 1. Fork 仓库
 2. 创建功能分支 (`git checkout -b feature/amazing-feature`)

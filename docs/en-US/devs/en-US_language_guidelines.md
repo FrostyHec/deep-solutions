@@ -136,16 +136,20 @@ Add data validation pipeline for input processing.
 
 ### Automated Checks
 
-The project includes automated language checks:
+The project includes automated language and documentation checks:
 
-1. **Source code check**: Detects Chinese characters in `src/` and `tests/`
-2. **Documentation check**: Verifies English docs exist, warns if Chinese missing
-3. **CI integration**: Language check runs as part of the lint job
+1. **Source code check** (`check_language.py`): Detects Chinese characters in `src/` and `tests/`
+2. **Documentation check** (`document_checker.py`): 
+   - Verifies bilingual structure (en-US ↔ zh-CN) recursively
+   - Checks for missing documentation counterparts
+   - Detects broken documentation references
+   - Ensures `index.md` exists in all directories
+3. **CI integration**: All checks run as part of the CI pipeline
 
 ### Running Locally
 
 ```bash
-# Run all language checks
+# Run all language checks (includes documentation)
 python scripts/check_language.py
 
 # Check source code only
@@ -153,9 +157,12 @@ python scripts/check_language.py --source-only
 
 # Check documentation only
 python scripts/check_language.py --docs-only
+# Or directly:
+python scripts/document_checker.py
 
 # Verbose output
 python scripts/check_language.py --verbose
+python scripts/document_checker.py --verbose
 ```
 
 ### CI Behavior
@@ -164,9 +171,11 @@ python scripts/check_language.py --verbose
 |-------|------------------|
 | Chinese in source code | ❌ Error - CI fails |
 | Missing English documentation | ❌ Error - CI fails |
-| Missing Chinese documentation | ⚠️ Warning - CI passes with warning |
+| Missing Chinese documentation | ❌ Error - CI fails |
+| Broken documentation references | ❌ Error - CI fails |
+| Missing `index.md` files | ❌ Error - CI fails |
 
-Warnings are reported in the PR check run for visibility.
+**All documentation issues are now treated as errors**, not warnings. This ensures bilingual parity and prevents broken links.
 
 ---
 
@@ -174,8 +183,8 @@ Warnings are reported in the PR check run for visibility.
 
 We welcome contributions to improve Chinese translations:
 
-1. Create/update the corresponding file in `docs/zh-CN/`
-2. Keep the structure consistent with the English version
+1. Create/update the corresponding file in `docs/zh-CN/{subdir}/` with `zh-CN_` prefix
+2. Keep the structure consistent with the English version in `docs/en-US/{subdir}/`
 3. Submit a PR with type `docs`
 
 Example:
@@ -187,6 +196,6 @@ docs(zh-CN): add Chinese translation for developers_guide
 
 ## Related Documentation
 
-- [Commit Conventions](./commit_conventions.md)
-- [Code Standards](./code_standards.md)
-- [Developer Guide](./developers_guide.md)
+- [Commit Conventions](./en-US_commit_conventions.md)
+- [Code Standards](./en-US_code_standards.md)
+- [Developer Guide](./en-US_developers_guide.md)

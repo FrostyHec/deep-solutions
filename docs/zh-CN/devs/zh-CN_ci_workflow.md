@@ -281,6 +281,6 @@ A: 当 `pyproject.toml` 变化时缓存会失效。这是正常行为，确保�
 
 ## 相关文档
 
-- [本地测试指南](./local_testing.md) - 在本地运行 CI 检查
-- [发布指南](./publishing.md) - 发布到 PyPI
-- [代码规范](./code_standards.md) - PR 合并要求
+- [本地测试指南](./zh-CN_local_testing.md) - 在本地运行 CI 检查
+- [发布指南](./zh-CN_publishing.md) - 发布到 PyPI
+- [代码规范](./zh-CN_code_standards.md) - PR 合并要求

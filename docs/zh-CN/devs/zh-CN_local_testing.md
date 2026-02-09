@@ -324,6 +324,19 @@ mypy src/ --verbose
 mypy src/ --html-report mypy-report
 ```
 
+### 语言与文档检查
+
+```bash
+# 仅检查源码语言
+python scripts/check_language.py --source-only
+
+# 仅检查文档（双语结构 + 断链）
+python scripts/document_checker.py
+
+# 所有语言和文档检查
+python scripts/check_language.py -v
+```
+
 ---
 
 ## 测试方法对比
@@ -405,6 +418,6 @@ ignore_missing_imports = true
 
 ## 相关文档
 
-- [CI 工作流说明](./ci_workflow.md) - 了解远程 CI 行为
-- [代码规范](./code_standards.md) - 代码质量要求
-- [开发者入门指南](./developers_guide.md) - 环境配置
+- [CI 工作流说明](./zh-CN_ci_workflow.md) - 了解远程 CI 行为
+- [代码规范](./zh-CN_code_standards.md) - 代码质量要求
+- [开发者入门指南](./zh-CN_developers_guide.md) - 环境配置

@@ -45,12 +45,14 @@ print(formatted)  # Output: Output: result data
 
 | Document | Description |
 |----------|-------------|
-| [Developer Guide](docs/developers_guide.md) | How to clone, setup environment, and contribute |
-| [Project Structure](docs/project_structure.md) | Directory structure, dependency management, Python version requirements |
-| [Code Standards](docs/code_standards.md) | Commit conventions, PR workflow, merge requirements |
-| [Local Testing Guide](docs/local_testing.md) | Using check.sh, tox, pytest, etc. |
-| [CI Workflow](docs/ci_workflow.md) | GitHub Actions CI/CD documentation |
-| [Publishing Guide](docs/publishing.md) | How to publish to PyPI |
+| [Contributing Guide](docs/en-US/devs/en-US_contributing.md) | **Start here** — step-by-step guide for new contributors |
+| [Developer Guide](docs/en-US/devs/en-US_developers_guide.md) | How to clone, setup environment, and contribute |
+| [Project Structure](docs/en-US/devs/en-US_project_structure.md) | Directory structure, dependency management, Python version requirements |
+| [Code Standards](docs/en-US/devs/en-US_code_standards.md) | Commit conventions, PR workflow, merge requirements |
+| [Local Testing Guide](docs/en-US/devs/en-US_local_testing.md) | Using check.sh, tox, pytest, etc. |
+| [CI Workflow](docs/en-US/devs/en-US_ci_workflow.md) | GitHub Actions CI/CD documentation |
+| [Publishing Guide](docs/en-US/devs/en-US_publishing.md) | How to publish to PyPI |
+| [Agent Development Guide](docs/en-US/devs/en-US_agent.md) | Technical reference for developers and AI agents |
 
 > **Note**: Chinese documentation is available in [docs/zh-CN/](docs/zh-CN/)
 
@@ -114,18 +116,21 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please see our [Developer Guide](docs/developers_guide.md) for details.
+We'd love your help! Contributions of all kinds are welcome — bug fixes, new features, documentation improvements, and more.
 
-> **⚠️ Important**: Development must be done in **Python 3.8** environment. See [Project Structure](docs/project_structure.md#python-version-requirements) for details.
+**[👉 See our Contributing Guide for step-by-step instructions](docs/en-US/devs/en-US_contributing.md)** — This guide walks you through the entire contribution workflow, from setup to submitting a PR.
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Run checks before commit (`./scripts/check.sh`)
-4. Commit your changes (`git commit -m 'feat: add amazing feature'`)
-5. Push to the branch (`git push origin feature/amazing-feature`)
-6. Open a Pull Request
+**Quick Checklist**:
+- ✅ Read the [Contributing Guide](docs/en-US/devs/en-US_contributing.md) — it has everything you need
+- ✅ Ensure Python 3.8 environment (see [Project Structure](docs/en-US/devs/en-US_project_structure.md#python-version-requirements))
+- ✅ Run `bash scripts/check.sh` to verify all checks pass locally
+- ✅ Follow [Commit Conventions](docs/en-US/devs/en-US_commit_conventions.md) for clear commit messages
+- ✅ Submit your PR with a clear description and link to related issues if applicable
 
-**Merge Requirements**: PRs must pass all CI checks and receive at least one review approval.
+**Merge Process**: 
+- All PRs are reviewed and tested via CI
+- Approved PRs are merged using **Squash and Merge** for a clean commit history
+- Your commits will be consolidated into a single, well-formatted commit following Conventional Commits
 
 ## 📧 Contact
 

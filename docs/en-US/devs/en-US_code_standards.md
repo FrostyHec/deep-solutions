@@ -115,7 +115,7 @@ def function_name(param1: str, param2: int) -> bool:
 
 - **All comments and docstrings must be in English**
 - No Chinese characters allowed in source code
-- See [Language Guidelines](./language_guidelines.md) for details
+- See [Language Guidelines](./en-US_language_guidelines.md) for details
 
 ### Documentation
 
@@ -165,7 +165,7 @@ cz commit
 git commit -m "feat: add new feature"
 ```
 
-For full details, see [Commit Conventions](./commit_conventions.md).
+For full details, see [Commit Conventions](./en-US_commit_conventions.md).
 
 ---
 
@@ -303,7 +303,13 @@ pytest
 # Full CI simulation
 ./scripts/ci-local.sh
 
-# Language check
+# Language check (source code only)
+python scripts/check_language.py --source-only
+
+# Documentation check (bilingual structure + broken links)
+python scripts/document_checker.py
+
+# All language + documentation checks
 python scripts/check_language.py
 
 # Interactive commit
@@ -314,8 +320,8 @@ cz commit
 
 ## Related Documentation
 
-- [Developer Guide](./developers_guide.md)
-- [Local Testing Guide](./local_testing.md)
-- [CI Workflow](./ci_workflow.md)
-- [Commit Conventions](./commit_conventions.md)
-- [Language Guidelines](./language_guidelines.md)
+- [Developer Guide](./en-US_developers_guide.md)
+- [Local Testing Guide](./en-US_local_testing.md)
+- [CI Workflow](./en-US_ci_workflow.md)
+- [Commit Conventions](./en-US_commit_conventions.md)
+- [Language Guidelines](./en-US_language_guidelines.md)
