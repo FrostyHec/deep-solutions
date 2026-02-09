@@ -1,32 +1,32 @@
 # =============================================================================
 # Publish to PyPI
-# 触发条件: 手动工作流触发 (workflow_dispatch)
-# 功能:
-#   1. 运行完整测试
-#   2. 构建包
-#   3. 发布到 PyPI (使用 API Token)
-#   4. 验证安装
-#   5. 创建 GitHub Release
-# 
-# 使用说明:
-#   1. 前置条件:
-#      - 在 PyPI 账户上生成 API Token: https://pypi.org/manage/account/tokens/
-#      - 在 GitHub 仓库 Settings > Secrets and variables > Actions 中添加:
+# Trigger: Manual workflow dispatch (workflow_dispatch)
+# Features:
+#   1. Run full test suite
+#   2. Build distribution package
+#   3. Publish to PyPI (using API Token)
+#   4. Verify installation
+#   5. Create GitHub Release
+#
+# Usage Instructions:
+#   1. Prerequisites:
+#      - Generate API Token on PyPI account: https://pypi.org/manage/account/tokens/
+#      - In GitHub repository Settings > Secrets and variables > Actions, add:
 #        - Name: PYPI_API_TOKEN
 #        - Secret: <your-pypi-api-token>
-#      - 确保 environment 中配置了 PYPI_API_TOKEN secret
+#      - Ensure PYPI_API_TOKEN secret is configured in the environment
 #
-#   2. 触发发布:
-#      - 在 GitHub Actions 页面选择此工作流
-#      - 点击 "Run workflow"
-#      - 输入版本标签 (例如: v1.0.0, v0.1.1, v2.0.0rc1)
-#      - 点击 "Run workflow"
+#   2. Trigger Publishing:
+#      - Go to GitHub Actions page and select this workflow
+#      - Click "Run workflow"
+#      - Enter version tag (e.g., v1.0.0, v0.1.1, v2.0.0rc1)
+#      - Click "Run workflow"
 #
-#   3. 工作流会自动:
-#      - 在所有 Python 版本上运行测试
-#      - 构建 sdist 和 wheel
-#      - 发布到 PyPI
-#      - 创建 GitHub Release
+#   3. The workflow will automatically:
+#      - Run tests on all Python versions
+#      - Build sdist and wheel distributions
+#      - Publish to PyPI
+#      - Create GitHub Release
 # =============================================================================
 
 name: Publish to PyPI
@@ -41,7 +41,7 @@ on:
 
 jobs:
   # ===========================================================================
-  # 首先运行完整测试
+  # First run complete test suite
   # ===========================================================================
   test:
     name: Test before publish
@@ -70,7 +70,7 @@ jobs:
         run: pytest --tb=short
 
   # ===========================================================================
-  # 发布到 PyPI
+  # Publish to PyPI
   # ===========================================================================
   publish:
     name: Publish to PyPI
@@ -79,13 +79,13 @@ jobs:
     environment: pypi
     
     permissions:
-      contents: write  # 用于创建 release
+      contents: write  # For creating release
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # setuptools-scm 需要完整的 git 历史
+          fetch-depth: 0  # setuptools-scm requires complete git history
 
       - name: Create git tag (if not exists)
         run: |
@@ -126,14 +126,14 @@ jobs:
 
       - name: Test installation from PyPI
         run: |
-          # 创建新的虚拟环境测试
+          # Create new virtual environment for testing
           python -m venv test-env
           source test-env/bin/activate
           
-          # 从 PyPI 安装
+          # Install from PyPI
           pip install deep-solutions
           
-          # 验证安装
+          # Verify installation
           python -c "import deep_solutions; print(f'Version: {deep_solutions.__version__}')"
           python -c "from deep_solutions import hello_world; print(hello_world())"
           

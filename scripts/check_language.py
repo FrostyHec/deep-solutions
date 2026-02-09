@@ -32,7 +32,8 @@ CHINESE_PATTERN = re.compile(
 # Files/directories to exclude from source code check
 EXCLUDE_PATTERNS = [
     "__pycache__",
-    ".git",
+    "/.git/",  # Use directory separators to avoid matching .github
+    "/.git\\",
     ".tox",
     "*.egg-info",
     "build",
@@ -125,6 +126,75 @@ class LanguageChecker:
 
         return files_with_chinese
 
+    def check_ci_configs(self) -> int:
+        """
+        Check CI/CD configuration files for Chinese characters.
+
+        Returns number of files with Chinese characters.
+        """
+        self.log("\n=== Checking CI/CD configuration files ===")
+        github_dir = self.root_dir / ".github"
+
+        files_with_chinese = 0
+
+        if not github_dir.exists():
+            self.log("✓ .github directory does not exist")
+            return 0
+
+        # Check workflow files (YAML)
+        workflows_dir = github_dir / "workflows"
+        if workflows_dir.exists():
+            for filepath in workflows_dir.glob("*.yml"):
+                if self.should_exclude(filepath):
+                    continue
+
+                chinese_lines = self.check_file_for_chinese(filepath)
+                if chinese_lines:
+                    files_with_chinese += 1
+                    rel_path = filepath.relative_to(self.root_dir)
+                    for line_num, content in chinese_lines:
+                        error_msg = f"ERROR: Chinese found in {rel_path}:{line_num}: {content[:60]}..."
+                        self.errors.append(error_msg)
+                        print(error_msg)
+            
+            if files_with_chinese == 0:
+                self.log(f"✓ No Chinese found in {workflows_dir.relative_to(self.root_dir)}")
+
+        # Check issue template files (Markdown)
+        templates_dir = github_dir / "ISSUE_TEMPLATE"
+        if templates_dir.exists():
+            for filepath in templates_dir.glob("*.md"):
+                if self.should_exclude(filepath):
+                    continue
+
+                chinese_lines = self.check_file_for_chinese(filepath)
+                if chinese_lines:
+                    files_with_chinese += 1
+                    rel_path = filepath.relative_to(self.root_dir)
+                    for line_num, content in chinese_lines:
+                        error_msg = f"ERROR: Chinese found in {rel_path}:{line_num}: {content[:60]}..."
+                        self.errors.append(error_msg)
+                        print(error_msg)
+            
+            if files_with_chinese == 0:
+                self.log(f"✓ No Chinese found in {templates_dir.relative_to(self.root_dir)}")
+
+        # Check PR template
+        pr_template = github_dir / "PULL_REQUEST_TEMPLATE.md"
+        if pr_template.exists():
+            chinese_lines = self.check_file_for_chinese(pr_template)
+            if chinese_lines:
+                files_with_chinese += 1
+                rel_path = pr_template.relative_to(self.root_dir)
+                for line_num, content in chinese_lines:
+                    error_msg = f"ERROR: Chinese found in {rel_path}:{line_num}: {content[:60]}..."
+                    self.errors.append(error_msg)
+                    print(error_msg)
+            else:
+                self.log(f"✓ Found: {pr_template.relative_to(self.root_dir)}")
+
+        return files_with_chinese
+
     def check_documentation(self) -> Tuple[int, int]:
         """
         Check documentation for bilingual support.
@@ -203,6 +273,9 @@ class LanguageChecker:
 
         # Check source code
         chinese_in_source = self.check_source_code()
+
+        # Check CI/CD configuration
+        chinese_in_ci = self.check_ci_configs()
 
         # Check documentation
         missing_en_docs, missing_zh_docs = self.check_documentation()

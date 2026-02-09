@@ -1,29 +1,29 @@
 # =============================================================================
 # Publish to TestPyPI
-# 触发条件: 手动工作流触发 (workflow_dispatch)
-# 功能:
-#   1. 构建包
-#   2. 发布到 TestPyPI (使用 API Token)
-#   3. 验证安装
-# 
-# 使用说明:
-#   1. 前置条件:
-#      - 在 TestPyPI 账户上生成 API Token: https://test.pypi.org/manage/account/tokens/
-#      - 在 GitHub 仓库 Settings > Secrets and variables > Actions 中添加:
+# Trigger: Manual workflow dispatch (workflow_dispatch)
+# Features:
+#   1. Build distribution package
+#   2. Publish to TestPyPI (using API Token)
+#   3. Verify installation
+#
+# Usage Instructions:
+#   1. Prerequisites:
+#      - Generate API Token on TestPyPI account: https://test.pypi.org/manage/account/tokens/
+#      - In GitHub repository Settings > Secrets and variables > Actions, add:
 #        - Name: TEST_PYPI_API_TOKEN
 #        - Secret: <your-test-pypi-api-token>
-#      - 确保 environment 中配置了 TEST_PYPI_API_TOKEN secret
+#      - Ensure TEST_PYPI_API_TOKEN secret is configured in the environment
 #
-#   2. 触发发布:
-#      - 在 GitHub Actions 页面选择此工作流
-#      - 点击 "Run workflow"
-#      - 输入版本标签 (例如: v1.0.0-test, v0.1.0rc1, v2.0.0.dev1)
-#      - 点击 "Run workflow"
+#   2. Trigger Publishing:
+#      - Go to GitHub Actions page and select this workflow
+#      - Click "Run workflow"
+#      - Enter version tag (e.g., v1.0.0-test, v0.1.0rc1, v2.0.0.dev1)
+#      - Click "Run workflow"
 #
-#   3. 工作流会自动:
-#      - 构建 sdist 和 wheel
-#      - 发布到 TestPyPI
-#      - 验证安装
+#   3. The workflow will automatically:
+#      - Build sdist and wheel distributions
+#      - Publish to TestPyPI
+#      - Verify installation
 # =============================================================================
 
 name: Publish to TestPyPI
@@ -49,7 +49,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # setuptools-scm 需要完整的 git 历史
+          fetch-depth: 0  # setuptools-scm requires complete git history
 
       - name: Create git tag (if not exists)
         run: |
@@ -91,16 +91,16 @@ jobs:
 
       - name: Test installation from TestPyPI
         run: |
-          # 创建新的虚拟环境测试
+          # Create new virtual environment for testing
           python -m venv test-env
           source test-env/bin/activate
           
-          # 从 TestPyPI 安装（使用 PyPI 作为额外索引以获取依赖）
+          # Install from TestPyPI (use PyPI as extra index for dependencies)
           pip install --index-url https://test.pypi.org/simple/ \
                       --extra-index-url https://pypi.org/simple/ \
                       deep-solutions
           
-          # 验证安装
+          # Verify installation
           python -c "import deep_solutions; print(f'Version: {deep_solutions.__version__}')"
           python -c "from deep_solutions import hello_world; print(hello_world())"
           

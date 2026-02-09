@@ -1,9 +1,9 @@
 # =============================================================================
-# Test Report Workflow - 发布测试结果到 PR
-# 触发条件: CI workflow 完成后
-# 功能: 下载测试结果并使用 test-reporter 发布到 PR
-# 策略: 根据触发事件动态调整测试版本（PR 只报告 3.8，main 报告全部）
-# 安全模型: 本工作流运行在主仓库上下文，可安全使用写权限
+# Test Report Workflow - Publish test results to PR
+# Trigger: After CI workflow completes
+# Features: Download test results and publish to PR using test-reporter
+# Strategy: Dynamically adjust test versions based on trigger (PR reports 3.8 only, main reports all)
+# Security: This workflow runs in main repository context, safe to use write permissions
 # =============================================================================
 
 name: Test Report
@@ -15,9 +15,9 @@ on:
       - completed
 
 permissions:
-  checks: write          # 创建/更新 Check Run
-  pull-requests: write   # 在 PR 中评论
-  actions: read          # 读取 workflow run 信息
+  checks: write          # Create/update Check Run
+  pull-requests: write   # Comment in PR
+  actions: read          # Read workflow run info
 
 jobs:
   report:
@@ -29,8 +29,8 @@ jobs:
     
     strategy:
       matrix:
-        # 根据触发事件决定报告哪些版本
-        # main 分支: 全矩阵，PR: 仅 3.8
+        # Decide which versions to report based on trigger event
+        # main branch: full matrix, PR: 3.8 only
         python-version: ${{ github.event.workflow_run.event == 'push' && github.event.workflow_run.head_branch == 'main' && fromJSON('["3.8", "3.9", "3.10", "3.11", "3.12"]') || fromJSON('["3.8"]') }}
     
     steps:
