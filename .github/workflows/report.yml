@@ -1,9 +1,13 @@
 # =============================================================================
-# Test Report Workflow - 发布测试结果到 PR
-# 触发条件: CI workflow 完成后
-# 功能: 下载测试结果并使用 test-reporter 发布到 PR
-# 策略: 根据触发事件动态调整测试版本（PR 只报告 3.8，main 报告全部）
-# 安全模型: 本工作流运行在主仓库上下文，可安全使用写权限
+# Test Report Workflow - Publish test results to PR
+# Trigger: After CI workflow completes
+# Features:
+#   1. Download pytest artifacts from CI run
+#   2. Publish test report as GitHub Check Run (visible in PR Checks tab)
+#   3. Post/update a sticky comment on the PR with test summary
+# Strategy: PR reports Python 3.8 only, main push reports full matrix
+# Security: Runs in base repository context with write permissions
+#   (safe for fork PRs - workflow_run always runs on base repo)
 # =============================================================================
 
 name: Test Report
@@ -15,9 +19,10 @@ on:
       - completed
 
 permissions:
-  checks: write          # 创建/更新 Check Run
-  pull-requests: write   # 在 PR 中评论
-  actions: read          # 读取 workflow run 信息
+  checks: write          # Create/update Check Run
+  pull-requests: write   # Post sticky comment on PR
+  actions: read          # Read workflow run info and download artifacts
+  contents: read         # Checkout repository code
 
 jobs:
   report:
@@ -26,23 +31,32 @@ jobs:
     if: |
       github.event.workflow_run.conclusion == 'success' ||
       github.event.workflow_run.conclusion == 'failure'
-    
+
     strategy:
+      fail-fast: false
       matrix:
-        # 根据触发事件决定报告哪些版本
-        # main 分支: 全矩阵，PR: 仅 3.8
+        # PR: report 3.8 only; main push: full matrix
         python-version: ${{ github.event.workflow_run.event == 'push' && github.event.workflow_run.head_branch == 'main' && fromJSON('["3.8", "3.9", "3.10", "3.11", "3.12"]') || fromJSON('["3.8"]') }}
-    
+
     steps:
+      # Checkout is required - dorny/test-reporter needs a git repo
+      # For fork PRs, checkout the fork's head commit
+      - name: Checkout triggering commit
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event.workflow_run.head_repository.full_name }}
+          ref: ${{ github.event.workflow_run.head_sha }}
+          fetch-depth: 1
+
       - name: Download test results
         uses: actions/download-artifact@v4
         with:
-          name: pytest-results-${{ matrix.python-version }}-${{ github.event.workflow_run.id }}
+          name: pytest-results-${{ matrix.python-version }}
           path: test-results
           github-token: ${{ secrets.GITHUB_TOKEN }}
           run-id: ${{ github.event.workflow_run.id }}
 
-      - name: Publish Test Report
+      - name: Publish Test Report (Check Run)
         uses: dorny/test-reporter@v1
         if: always()
         with:
@@ -50,7 +64,45 @@ jobs:
           path: test-results/pytest-report.xml
           reporter: java-junit
           fail-on-error: false
-          fail-on-empty: false
+          fail-on-empty: true
           list-suites: all
           list-tests: all
           max-annotations: 10
+
+  # Separate job for sticky comment - runs once (not per matrix version)
+  comment:
+    name: Update PR Comment
+    runs-on: ubuntu-latest
+    needs: report
+    if: |
+      always() &&
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.pull_requests[0]
+    steps:
+      - name: Determine result emoji
+        id: emoji
+        run: |
+          if [ "${{ github.event.workflow_run.conclusion }}" = "success" ]; then
+            echo "icon=✅" >> "$GITHUB_OUTPUT"
+          else
+            echo "icon=❌" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Post sticky PR comment
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          number: ${{ github.event.workflow_run.pull_requests[0].number }}
+          header: ci-test-summary
+          message: |
+            ## ${{ steps.emoji.outputs.icon }} CI Test Summary
+
+            | Item | Detail |
+            |------|--------|
+            | **Result** | `${{ github.event.workflow_run.conclusion }}` |
+            | **Commit** | ${{ github.event.workflow_run.head_sha }} |
+            | **Branch** | `${{ github.event.workflow_run.head_branch }}` |
+            | **Workflow Run** | [View Details](${{ github.event.workflow_run.html_url }}) |
+
+            > Check the **Checks** tab for detailed **PyTest Results**.
+            >
+            > _This comment is automatically updated on each push._

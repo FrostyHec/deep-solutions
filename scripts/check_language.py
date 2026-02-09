@@ -32,24 +32,13 @@ CHINESE_PATTERN = re.compile(
 # Files/directories to exclude from source code check
 EXCLUDE_PATTERNS = [
     "__pycache__",
-    ".git",
+    "/.git/",  # Use directory separators to avoid matching .github
+    "/.git\\",
     ".tox",
     "*.egg-info",
     "build",
     "dist",
     ".nonpublic",
-]
-
-# Documentation files that should have bilingual versions
-DOC_FILES = [
-    "developers_guide.md",
-    "project_structure.md",
-    "code_standards.md",
-    "local_testing.md",
-    "ci_workflow.md",
-    "publishing.md",
-    "commit_conventions.md",
-    "language_guidelines.md",
 ]
 
 
@@ -125,42 +114,135 @@ class LanguageChecker:
 
         return files_with_chinese
 
+    def check_ci_configs(self) -> int:
+        """
+        Check CI/CD configuration files for Chinese characters.
+
+        Returns number of files with Chinese characters.
+        """
+        self.log("\n=== Checking CI/CD configuration files ===")
+        github_dir = self.root_dir / ".github"
+
+        files_with_chinese = 0
+
+        if not github_dir.exists():
+            self.log("✓ .github directory does not exist")
+            return 0
+
+        # Check workflow files (YAML)
+        workflows_dir = github_dir / "workflows"
+        if workflows_dir.exists():
+            for filepath in workflows_dir.glob("*.yml"):
+                if self.should_exclude(filepath):
+                    continue
+
+                chinese_lines = self.check_file_for_chinese(filepath)
+                if chinese_lines:
+                    files_with_chinese += 1
+                    rel_path = filepath.relative_to(self.root_dir)
+                    for line_num, content in chinese_lines:
+                        error_msg = f"ERROR: Chinese found in {rel_path}:{line_num}: {content[:60]}..."
+                        self.errors.append(error_msg)
+                        print(error_msg)
+            
+            if files_with_chinese == 0:
+                self.log(f"✓ No Chinese found in {workflows_dir.relative_to(self.root_dir)}")
+
+        # Check issue template files (Markdown)
+        templates_dir = github_dir / "ISSUE_TEMPLATE"
+        if templates_dir.exists():
+            for filepath in templates_dir.glob("*.md"):
+                if self.should_exclude(filepath):
+                    continue
+
+                chinese_lines = self.check_file_for_chinese(filepath)
+                if chinese_lines:
+                    files_with_chinese += 1
+                    rel_path = filepath.relative_to(self.root_dir)
+                    for line_num, content in chinese_lines:
+                        error_msg = f"ERROR: Chinese found in {rel_path}:{line_num}: {content[:60]}..."
+                        self.errors.append(error_msg)
+                        print(error_msg)
+            
+            if files_with_chinese == 0:
+                self.log(f"✓ No Chinese found in {templates_dir.relative_to(self.root_dir)}")
+
+        # Check PR template
+        pr_template = github_dir / "PULL_REQUEST_TEMPLATE.md"
+        if pr_template.exists():
+            chinese_lines = self.check_file_for_chinese(pr_template)
+            if chinese_lines:
+                files_with_chinese += 1
+                rel_path = pr_template.relative_to(self.root_dir)
+                for line_num, content in chinese_lines:
+                    error_msg = f"ERROR: Chinese found in {rel_path}:{line_num}: {content[:60]}..."
+                    self.errors.append(error_msg)
+                    print(error_msg)
+            else:
+                self.log(f"✓ Found: {pr_template.relative_to(self.root_dir)}")
+
+        return files_with_chinese
+
     def check_documentation(self) -> Tuple[int, int]:
         """
         Check documentation for bilingual support.
 
-        Returns (missing_english_count, missing_chinese_count).
+        Scans all files in docs/ directory (baseline for English files),
+        checks if corresponding files exist in docs/zh-CN/.
+        Also reports extra files in zh-CN that don't have English versions.
+
+        Returns (missing_chinese_count, extra_chinese_count).
         """
         self.log("\n=== Checking documentation for bilingual support ===")
         docs_dir = self.root_dir / "docs"
         zh_cn_dir = docs_dir / "zh-CN"
 
-        missing_english = 0
         missing_chinese = 0
+        extra_chinese = 0
 
-        for doc_file in DOC_FILES:
-            en_path = docs_dir / doc_file
-            zh_path = zh_cn_dir / doc_file
+        # Ensure directories exist
+        if not docs_dir.exists():
+            warning_msg = f"WARNING: docs/ directory does not exist"
+            self.warnings.append(warning_msg)
+            return 0, 0
 
-            # Check English version (required)
-            if not en_path.exists():
-                error_msg = f"ERROR: Missing English documentation: docs/{doc_file}"
-                self.errors.append(error_msg)
-                print(error_msg)
-                missing_english += 1
-            else:
-                self.log(f"✓ Found: docs/{doc_file}")
+        if not zh_cn_dir.exists():
+            warning_msg = f"WARNING: docs/zh-CN/ directory does not exist"
+            self.warnings.append(warning_msg)
+            return 0, 0
 
-            # Check Chinese version (warning only)
-            if not zh_path.exists():
-                warning_msg = f"WARNING: Missing Chinese documentation: docs/zh-CN/{doc_file}"
+        # Get all files in English docs (excluding subdirectories)
+        en_files = set()
+        for item in docs_dir.iterdir():
+            if item.is_file() and not item.name.startswith('.'):
+                en_files.add(item.name)
+
+        # Get all files in Chinese docs
+        zh_files = set()
+        for item in zh_cn_dir.iterdir():
+            if item.is_file() and not item.name.startswith('.'):
+                zh_files.add(item.name)
+
+        # Check for missing Chinese versions
+        for en_file in sorted(en_files):
+            self.log(f"✓ Found: docs/{en_file}")
+            if en_file not in zh_files:
+                warning_msg = f"WARNING: Missing Chinese documentation: docs/zh-CN/{en_file}"
                 self.warnings.append(warning_msg)
                 print(warning_msg)
                 missing_chinese += 1
             else:
-                self.log(f"✓ Found: docs/zh-CN/{doc_file}")
+                self.log(f"✓ Found: docs/zh-CN/{en_file}")
 
-        return missing_english, missing_chinese
+        # Check for extra files in Chinese docs (not in English)
+        for zh_file in sorted(zh_files):
+            if zh_file not in en_files:
+                warning_msg = f"WARNING: Extra Chinese documentation without English version: docs/zh-CN/{zh_file}"
+                self.warnings.append(warning_msg)
+                print(warning_msg)
+                extra_chinese += 1
+
+        return missing_chinese, extra_chinese
 
     def check_readme(self) -> Tuple[bool, bool]:
         """
@@ -204,8 +286,11 @@ class LanguageChecker:
         # Check source code
         chinese_in_source = self.check_source_code()
 
+        # Check CI/CD configuration
+        chinese_in_ci = self.check_ci_configs()
+
         # Check documentation
-        missing_en_docs, missing_zh_docs = self.check_documentation()
+        missing_zh_docs, extra_zh_docs = self.check_documentation()
 
         # Check README
         readme_en_exists, readme_zh_exists = self.check_readme()
