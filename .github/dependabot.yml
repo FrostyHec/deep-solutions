@@ -18,13 +18,10 @@ updates:
       include: "scope"
     pull-request-branch-name:
       separator: "/"
-    allow:
-      - dependency-type: "all"
-    ignore:
-      # Add packages to ignore if needed (example: numpy@2.0.0)
+    ignore: []
     
-    # Auto-merge minor and patch updates when CI passes
-    auto-merge: true
+    # Rebase automatically to keep PRs updated
+    rebase-strategy: "auto"
     
     # Group dependencies to reduce PR count
     groups:
@@ -56,8 +53,8 @@ updates:
       prefix: "ci(actions)"
       include: "scope"
     
-    # Auto-merge all GitHub Actions updates when CI passes
-    auto-merge: true
+    # Rebase automatically to keep PRs updated
+    rebase-strategy: "auto"
     
     # Group all actions updates together
     groups:
