@@ -322,101 +322,53 @@ pytest --cov=deep_solutions --cov-report=html
 
 ### 发布清单
 
-#### 快捷发布（推荐）
-
-**一键发布脚本** - 自动化整个 TestPyPI 发布流程：
-
+**前置要求**（一次性设置）：
 ```bash
-bash scripts/release.sh
-```
-
-**功能说明：**
-1. ✅ 提醒更新 CHANGELOG.md
-2. ✅ 切换到 main 分支并拉取最新代码
-3. ✅ 提示输入版本标签（例如 v0.1.1rc1）
-4. ✅ 创建并推送 git 标签
-5. ✅ 通过 gh CLI 触发 publish-test 工作流
-6. ✅ 等待工作流完成并显示结果
-7. ✅ 指导进行生产环境 PyPI 发布
-
-**前置要求：**
-```bash
-# 安装 GitHub CLI（如果尚未安装）
 conda install -c conda-forge gh
-
-# 与 GitHub 认证（一次性设置）
 gh auth login
 ```
 
-#### 第 1 步：准备发布
+#### 标准发布流程（推荐）
 
-1. **确保所有检查通过**：
-   ```bash
-   bash scripts/check.sh
-   ```
+以发布 `v0.1.1` 为例：
 
-2. **更新 CHANGELOG.md**：
-   ```bash
-   git log v<last-version>..HEAD --oneline
-   # 手动在 CHANGELOG.md 中的"未发布"下添加条目
-   git add CHANGELOG.md
-   git commit -m "docs: update changelog for v<new-version>"
-   ```
-
-3. **验证 CI 通过**：检查 main 分支上的 GitHub Actions 状态
-
-#### 第 2 步：创建版本标签
-
+**步骤 A — 在 TestPyPI 上测试** (`test_release.sh`)：
 ```bash
-# 使用 Commitizen（推荐）
-cz bump --bump-message "release: v{new_version}"
-
-# 或手动
-git tag -a v1.0.0 -m "Release v1.0.0"
-git push origin v1.0.0
+bash scripts/test_release.sh
+# 输入标签：v0.1.1.dev1
+# 如果失败，修复后使用 v0.1.1.dev2 重新运行，以此类推
 ```
 
-这将触发：
-- CI 工作流验证标签
-- setuptools-scm 生成版本
-- `src/deep_solutions/_version.py` 更新
-
-#### 第 3 步：构建与测试（TestPyPI）
-
-**使用 CI**：推送标签 → GitHub Actions 自动：
-1. 运行 `Publish to TestPyPI` 工作流（手动分发可用）
-2. 测试安装
-3. 创建 GitHub Release 草稿
-
-**手动**（备选，一般避免使用）：
+**步骤 B — 发布到 PyPI** (`final_release.sh`)：
 ```bash
-# 构建分发
-python -m build
-
-# 上传到 TestPyPI（先测试！）
-twine upload -r testpypi dist/*
-
-# 从 TestPyPI 测试安装
-pip install -i https://test.pypi.org/simple/ deep-solutions==<version>
-python -c "import deep_solutions; print(deep_solutions.__version__)"
+bash scripts/final_release.sh
+# 选择更名模式 (y)：将 v0.1.1.dev1 更名为 v0.1.1
+# 可选择清理其他 .dev 标签
+# 脚本触发 publish.yml 并等待结果
 ```
 
-#### 第 4 步：发布到 PyPI（生产环境）
+> **快捷方式**：如果有信心，可以在步骤 A 中直接使用 `v0.1.1` 进行测试
+> （不加 `.dev` 后缀），然后在步骤 B 中使用直接模式 (n)。
 
-**使用 CI**：
-1. 前往 GitHub Actions → "Publish to PyPI" 工作流
-2. 点击"Run workflow"
-3. 确认 CI 通过，然后发布
-4. 创建带有资产的 GitHub Release
+#### `test_release.sh` — 测试发布
 
-**手动**（备选，一般避免使用）：
-```bash
-# 上传到生产 PyPI
-twine upload dist/*
+自动化 TestPyPI 验证流程：
+1. 提醒更新 CHANGELOG.md
+2. 切换到 main 分支并拉取最新代码
+3. 提示输入版本标签（例如 `v0.1.1.dev1`）
+4. 创建并推送 git 标签
+5. 通过 gh CLI 触发 `publish-test.yml`
+6. 等待完成并显示结果
 
-# 验证安装
-pip install --upgrade deep-solutions
-```
+#### `final_release.sh` — 正式发布
+
+发布到生产环境 PyPI，支持两种模式：
+
+- **更名模式**（常用）：将测试标签更名为正式版本
+  （例如 `v0.1.1.dev3` → `v0.1.1`），可选删除剩余 `.dev` 标签。
+- **直接模式**：直接使用已有标签（当你直接用最终版本号测试时）。
+
+然后触发 `publish.yml`，等待完成并报告结果。
 
 ### CI 工作流
 

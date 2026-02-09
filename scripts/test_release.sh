@@ -1,22 +1,24 @@
 #!/bin/bash
 # =============================================================================
-# Release Script for deep-solutions
+# Test Release Script for deep-solutions
 # 
-# This script automates the version release process:
+# Publishes a test version to TestPyPI to validate the release pipeline.
+# Use this BEFORE final_release.sh to verify everything works.
+#
+# Flow:
 #   0. Reminds user to update CHANGELOG.md
 #   1. Switches to main branch and pulls latest code
-#   2. Prompts for version tag input
+#   2. Prompts for version tag input (e.g., v0.1.1.dev1)
 #   3. Creates and pushes git tag
 #   4. Triggers publish-test workflow via gh CLI
 #   5. Waits for completion and displays results
-#   6. Guides user for next steps (publish-pypi)
 #
 # Prerequisites:
 #   - GitHub CLI (gh) installed and authenticated
 #   - Run: gh auth login
 #
 # Usage:
-#   bash scripts/release.sh
+#   bash scripts/test_release.sh
 # =============================================================================
 
 set -e  # Exit on error

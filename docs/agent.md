@@ -322,102 +322,54 @@ The project uses **setuptools-scm** for automatic versioning from Git tags.
 
 ### Release Checklist
 
-#### Quick Release (Recommended)
-
-**One-Command Release Script** - Automates the entire TestPyPI release process:
-
+**Prerequisites** (one-time setup):
 ```bash
-bash scripts/release.sh
-```
-
-**What it does:**
-1. ✅ Reminds you to update CHANGELOG.md
-2. ✅ Switches to main branch and pulls latest code
-3. ✅ Prompts for version tag (e.g., v0.1.1rc1)
-4. ✅ Creates and pushes git tag
-5. ✅ Triggers publish-test workflow via gh CLI
-6. ✅ Waits for workflow completion and displays results
-7. ✅ Guides you for production PyPI publish
-
-**Prerequisites:**
-```bash
-# Install GitHub CLI (if not already installed)
 conda install -c conda-forge gh
-
-# Authenticate with GitHub (one-time setup)
 gh auth login
 ```
 
-#### Step 1: Prepare Release
+#### Standard Release Flow (Recommended)
 
-1. **Ensure all checks pass locally**:
-````
-   ```bash
-   bash scripts/check.sh
-   ```
+To release version `v0.1.1`:
 
-2. **Update CHANGELOG.md**:
-   ```bash
-   git log v<last-version>..HEAD --oneline
-   # Manually add entries to CHANGELOG.md under "Unreleased"
-   git add CHANGELOG.md
-   git commit -m "docs: update changelog for v<new-version>"
-   ```
-
-3. **Verify CI passes**: Check GitHub Actions status on main branch
-
-#### Step 2: Create Version Tag
-
+**Step A — Test on TestPyPI** (`test_release.sh`):
 ```bash
-# Using Commitizen (recommended)
-cz bump --bump-message "release: v{new_version}"
-
-# Or manually
-git tag -a v1.0.0 -m "Release v1.0.0"
-git push origin v1.0.0
+bash scripts/test_release.sh
+# Enter tag: v0.1.1.dev1
+# If it fails, fix and re-run with v0.1.1.dev2, etc.
 ```
 
-This triggers:
-- CI workflow validates the tag
-- setuptools-scm generates version
-- `src/deep_solutions/_version.py` is updated
-
-#### Step 3: Build & Test (TestPyPI)
-
-**Use CI**: Push tag → GitHub Actions automatically:
-1. Runs `Publish to TestPyPI` workflow (manual dispatch available)
-2. Tests installation
-3. Creates GitHub Release draft
-
-**Manual** (backup, generally avoid):
+**Step B — Publish to PyPI** (`final_release.sh`):
 ```bash
-# Build distribution
-python -m build
-
-# Upload to TestPyPI (test first!)
-twine upload -r testpypi dist/*
-
-# Test installation from TestPyPI
-pip install -i https://test.pypi.org/simple/ deep-solutions==<version>
-python -c "import deep_solutions; print(deep_solutions.__version__)"
+bash scripts/final_release.sh
+# Choose rename mode (y): rename v0.1.1.dev1 → v0.1.1
+# Optionally clean up leftover .dev tags
+# Script triggers publish.yml and waits for result
 ```
 
-#### Step 4: Publish to PyPI (Production)
+> **Shortcut**: If you're confident, you can test directly with `v0.1.1` in
+> Step A (no `.dev` suffix), then use direct mode (n) in Step B.
 
-**use CI**: 
-1. Go to GitHub Actions → "Publish to PyPI" workflow
-2. Click "Run workflow"
-3. Confirms CI passes, then publishes
-4. Creates GitHub Release with assets
+#### `test_release.sh` — Test Release
 
-**Manual**（backup, generally avoid）:
-```bash
-# Upload to production PyPI
-twine upload dist/*
+Automates the TestPyPI validation pipeline:
+1. Reminds you to update CHANGELOG.md
+2. Switches to main and pulls latest code
+3. Prompts for version tag (e.g., `v0.1.1.dev1`)
+4. Creates and pushes git tag
+5. Triggers `publish-test.yml` via gh CLI
+6. Waits for completion and displays results
 
-# Verify installation
-pip install --upgrade deep-solutions
-```
+#### `final_release.sh` — Production Release
+
+Publishes to production PyPI with two modes:
+
+- **Rename mode** (typical): Renames a tested tag to a clean version
+  (e.g., `v0.1.1.dev3` → `v0.1.1`), optionally deletes leftover `.dev` tags.
+- **Direct mode**: Uses an existing tag as-is (when you tested with the
+  final version number directly).
+
+Then triggers `publish.yml`, waits for completion, and reports the result.
 
 ### CI Workflows
 
