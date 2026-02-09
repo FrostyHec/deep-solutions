@@ -28,23 +28,17 @@ updates:
     
     # Group dependencies to reduce PR count
     groups:
-      dev-dependencies:
-        dependency-types:
-          - "development"
+      minor-patch:
+        patterns:
+          - "*"
         update-types:
-          - "version-update:semver-minor"
-          - "version-update:semver-patch"
-      production-minor-patch:
-        dependency-types:
-          - "production"
+          - "minor"
+          - "patch"
+      major:
+        patterns:
+          - "*"
         update-types:
-          - "version-update:semver-minor"
-          - "version-update:semver-patch"
-      production-major:
-        dependency-types:
-          - "production"
-        update-types:
-          - "version-update:semver-major"
+          - "major"
 
   # GitHub Actions
   - package-ecosystem: "github-actions"
@@ -67,10 +61,10 @@ updates:
     
     # Group all actions updates together
     groups:
-      actions:
+      actions-all:
         patterns:
           - "*"
         update-types:
-          - "version-update:semver-minor"
-          - "version-update:semver-patch"
-          - "version-update:semver-major"
+          - "minor"
+          - "patch"
+          - "major"
