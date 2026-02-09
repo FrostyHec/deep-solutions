@@ -114,25 +114,42 @@ python -c "import deep_solutions; print(f'Version: {deep_solutions.__version__}'
 python -m pytest tests/ -v
 ```
 
-#### Update Dependencies
+#### Dependency Management
 
-**Add a new dependency:**
+**Core Principle**: All pip dependencies managed in `pyproject.toml` only.
+- Runtime deps → `[project].dependencies`
+- Dev deps → `[project.optional-dependencies].dev`
+- Local dev environment must strictly match `pyproject.toml`
 
-1. Edit `pyproject.toml` → `[project.dependencies]` or `[project.optional-dependencies.dev]`
-2. Run: `pip install <package_name>`
-3. Test: `python -m pytest`
+**Update Strategy**:
+- **Runtime deps**: Conservative updates (impacts users). Increase minimum version only when needed for features.
+- **Dev deps**: Can update more aggressively (only affects contributors & CI).
 
-**Update existing dependencies:**
-```bash
-pip install --upgrade <package_name>
-pip freeze > requirements-lock.txt  # Optional: lock versions
+**Adding a new dependency:**
+
+1. Create branch: `git checkout -b chore/add-<pkg>`
+2. Edit `pyproject.toml` (add version like `"package>=x.y"`)
+3. Reinstall: `pip install -U pip && pip install -e ".[dev]"`
+4. Verify: `bash scripts/check.sh && tox`
+5. Commit with reason (e.g., `"build(deps): add requests for HTTP support"`)
+
+**Upgrading existing dependency:**
+
+When you need a new feature (available in version X.Y):
+1. Update `pyproject.toml`: change `>=old` to `>=x.y`
+2. Reinstall: `pip install -U pip && pip install -e ".[dev]"`
+3. Verify: `bash scripts/check.sh && tox`
+
+Example:
+```
+# Before: numpy>=1.17
+# After (need new API): numpy>=1.23
 ```
 
-**Update Conda environment file:**
-```bash
-conda export -n deep-solutions > environment.yml
-git add environment.yml && git commit -m "build(deps): update conda environment"
-```
+**Verification checklist** (after any dependency change):
+- [ ] `pip install -e ".[dev]"` succeeds
+- [ ] `bash scripts/check.sh` passes
+- [ ] `tox` passes (at least Python 3.8 + latest)
 
 ---
 

@@ -114,9 +114,42 @@ python -c "import deep_solutions; print(f'Version: {deep_solutions.__version__}'
 python -m pytest tests/ -v
 ```
 
-#### 更新依赖
+#### 依赖管理
 
-？，【TODO】合适的操作应该是什么？
+**核心原则**：所有 pip 依赖只在 `pyproject.toml` 中管理。
+- 运行时依赖 → `[project].dependencies`
+- 开发依赖 → `[project.optional-dependencies].dev`
+- 本地开发环境必须严格等同于 `pyproject.toml` 环境
+
+**更新策略**：
+- **运行时依赖**：谨慎更新（影响用户）。仅在需要新功能时提高最小版本。
+- **开发依赖**：可以更积极更新（仅影响贡献者和 CI）。
+
+**新增依赖：**
+
+1. 创建分支：`git checkout -b chore/add-<pkg>`
+2. 编辑 `pyproject.toml`（添加版本如 `"package>=x.y"`）
+3. 重新安装：`pip install -U pip && pip install -e ".[dev]"`
+4. 验证：`bash scripts/check.sh && tox`
+5. 提交（说明原因，如 `"build(deps): add requests for HTTP support"`）
+
+**升级已有依赖：**
+
+当需要新版本的新特性（从版本 X.Y 开始可用）时：
+1. 更新 `pyproject.toml`：改为 `>=x.y`
+2. 重新安装：`pip install -U pip && pip install -e ".[dev]"`
+3. 验证：`bash scripts/check.sh && tox`
+
+示例：
+```
+# 修改前: numpy>=1.17
+# 修改后（需要新 API）: numpy>=1.23
+```
+
+**验证清单**（任何依赖改动后必须做）：
+- [ ] `pip install -e ".[dev]"` 成功
+- [ ] `bash scripts/check.sh` 通过
+- [ ] `tox` 通过（至少 Python 3.8 + 最新版本）
 
 ---
 
