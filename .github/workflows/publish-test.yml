@@ -88,77 +88,64 @@ jobs:
           TWINE_NON_INTERACTIVE: 1
         run: twine upload dist/* --skip-existing
 
-      - name: Wait for package to be available
-        run: sleep 30
-
-      - name: Extract and validate version from tag
+      - name: Extract version from tag
         id: version
         run: |
           TAG="${{ github.event.inputs.version_tag }}"
-          # Remove 'v' prefix if present to get version string
           VERSION="${TAG#v}"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Extracted version from tag: $VERSION"
 
-      - name: Test installation from TestPyPI
+      - name: Install from TestPyPI (retry until available) and validate
         env:
           EXPECTED_VERSION: ${{ steps.version.outputs.version }}
         run: |
           set -euo pipefail
-          # Create new virtual environment for testing
           python -m venv test-env
           source test-env/bin/activate
           python -m pip install --upgrade pip
-          
-          # Install from TestPyPI (use PyPI as extra index for dependencies)
-          pip install --index-url https://test.pypi.org/simple/ \
-                      --extra-index-url https://pypi.org/simple/ \
-                      "deep-solutions==${EXPECTED_VERSION}"
-          
-          # Create validation script
-          cat > validate_package.py << 'EOF'
-          import sys
-          import os
-          import deep_solutions
 
-          # Expected version from input
-          expected_version = os.environ.get("EXPECTED_VERSION", "").strip()
-          actual_version = deep_solutions.__version__
+          echo "Waiting for deep-solutions==${EXPECTED_VERSION} on TestPyPI..."
+          max_attempts=18   # 18 * 20s = 360s (6 minutes)
+          attempt=1
+          until pip install --index-url https://test.pypi.org/simple/ \
+                            --extra-index-url https://pypi.org/simple/ \
+                            "deep-solutions==${EXPECTED_VERSION}"
+          do
+            if [ "$attempt" -ge "$max_attempts" ]; then
+              echo "::error::Package deep-solutions==${EXPECTED_VERSION} not available after $((max_attempts*20))s"
+              exit 1
+            fi
+            echo "Attempt ${attempt}/${max_attempts} failed; retrying in 20s..."
+            attempt=$((attempt+1))
+            sleep 20
+          done
+          echo "✅ Package installed successfully"
 
-          print(f"Expected version: {expected_version}")
-          print(f"Actual version: {actual_version}")
-
-          if not expected_version:
-              print("❌ EXPECTED_VERSION is empty")
-              sys.exit(1)
-
-          # Validate version matches
-          if actual_version != expected_version:
-              print(f"❌ Version mismatch! Expected '{expected_version}', got '{actual_version}'")
-              sys.exit(1)
-          else:
-              print(f"✅ Version validated successfully!")
-
-          # Test hello_world function
+          # Validate version and functionality
+          python - <<PYEOF
+          import sys, os, deep_solutions
           from deep_solutions import hello_world
+
+          expected = os.environ["EXPECTED_VERSION"]
+          actual = deep_solutions.__version__
+          print(f"Expected version: {expected}")
+          print(f"Actual version:   {actual}")
+          if actual != expected:
+              print(f"❌ Version mismatch! Expected '{expected}', got '{actual}'")
+              sys.exit(1)
+          print("✅ Version validated successfully!")
+
           result = hello_world()
           expected_output = "Hello from deep-solutions!"
-
           print(f"Function output: {result}")
-
-          # Validate hello_world output
           if result != expected_output:
               print(f"❌ Output mismatch! Expected '{expected_output}', got '{result}'")
               sys.exit(1)
-          else:
-              print(f"✅ hello_world() validated successfully!")
-
+          print("✅ hello_world() validated successfully!")
           print("\n✅ All validations passed! Package is ready for production PyPI.")
-          EOF
+          PYEOF
 
-          # Run validation
-          python validate_package.py
-          
           deactivate
 
       - name: Upload build artifacts
