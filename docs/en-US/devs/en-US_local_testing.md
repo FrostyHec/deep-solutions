@@ -153,6 +153,28 @@ mypy --strict src/
 mypy --show-error-codes src/
 ```
 
+### Documentation Check
+
+```bash
+# Check bilingual documentation structure
+python scripts/document_checker.py
+
+# Verbose output
+python scripts/document_checker.py -v
+
+# Check all (language + documentation)
+python scripts/check_language.py
+
+# Verbose output
+python scripts/check_language.py -v
+```
+
+**What it checks**:
+- Bilingual parity (en-US ↔ zh-CN) across all subdirectories
+- Broken documentation references (missing local `.md` files)
+- Missing `index.md` files
+- All issues are **errors** (will fail CI)
+
 ### One-Click Check Script
 
 Create `scripts/check.sh`:

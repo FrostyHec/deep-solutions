@@ -324,6 +324,19 @@ mypy src/ --verbose
 mypy src/ --html-report mypy-report
 ```
 
+### 语言与文档检查
+
+```bash
+# 仅检查源码语言
+python scripts/check_language.py --source-only
+
+# 仅检查文档（双语结构 + 断链）
+python scripts/document_checker.py
+
+# 所有语言和文档检查
+python scripts/check_language.py -v
+```
+
 ---
 
 ## 测试方法对比

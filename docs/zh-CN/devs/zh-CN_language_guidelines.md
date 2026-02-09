@@ -138,16 +138,20 @@ Add data validation pipeline for input processing.
 
 ### 自动检查
 
-项目包含自动语言检查：
+项目包含自动语言和文档检查：
 
-1. **源代码检查**：检测 `src/` 和 `tests/` 中的中文字符
-2. **文档检查**：验证英文文档存在，如果中文缺失则警告
-3. **CI 集成**：语言检查作为 lint job 的一部分运行
+1. **源代码检查** (`check_language.py`)：检测 `src/` 和 `tests/` 中的中文字符
+2. **文档检查** (`document_checker.py`)：
+   - 递归验证双语结构 (en-US ↔ zh-CN)
+   - 检查缺失的文档对应版本
+   - 检测空文档引用
+   - 确保所有目录中存在 `index.md`
+3. **CI 集成**：所有检查作为 CI 管道的一部分运行
 
 ### 本地运行
 
 ```bash
-# 运行所有语言检查
+# 运行所有语言检查（包括文档）
 python scripts/check_language.py
 
 # 仅检查源代码
@@ -155,9 +159,12 @@ python scripts/check_language.py --source-only
 
 # 仅检查文档
 python scripts/check_language.py --docs-only
+# 或直接：
+python scripts/document_checker.py
 
 # 详细输出
 python scripts/check_language.py --verbose
+python scripts/document_checker.py --verbose
 ```
 
 ### CI 行为
@@ -166,9 +173,11 @@ python scripts/check_language.py --verbose
 |------|----------|
 | 源代码中有中文 | ❌ 错误 - CI 失败 |
 | 缺少英文文档 | ❌ 错误 - CI 失败 |
-| 缺少中文文档 | ⚠️ 警告 - CI 通过但有警告 |
+| 缺少中文文档 | ❌ 错误 - CI 失败 |
+| 空文档引用 | ❌ 错误 - CI 失败 |
+| 缺少 `index.md` 文件 | ❌ 错误 - CI 失败 |
 
-警告会在 PR check run 中报告以提高可见性。
+**所有文档问题现在都被视为错误**，而非警告。这确保了双语对齐并防止空链接。
 
 ---
 

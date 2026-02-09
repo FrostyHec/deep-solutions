@@ -303,7 +303,13 @@ pytest
 # Full CI simulation
 ./scripts/ci-local.sh
 
-# Language check
+# Language check (source code only)
+python scripts/check_language.py --source-only
+
+# Documentation check (bilingual structure + broken links)
+python scripts/document_checker.py
+
+# All language + documentation checks
 python scripts/check_language.py
 
 # Interactive commit

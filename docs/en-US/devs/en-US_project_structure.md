@@ -40,7 +40,8 @@ deep-solutions/
 ├── scripts/                     # Development & release scripts
 │   ├── check.sh                 # Run all local checks (format, lint, type, language, test)
 │   ├── ci-local.sh              # Simulate full CI pipeline locally
-│   ├── check_language.py        # Verify English-only code + bilingual doc parity
+│   ├── check_language.py        # Verify English-only code (calls document_checker)
+│   ├── document_checker.py      # Check bilingual docs, broken refs, structure
 │   ├── test_release.sh          # Automate TestPyPI test release
 │   └── final_release.sh         # Automate production PyPI release
 │

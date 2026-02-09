@@ -37,7 +37,7 @@ deep-solutions/
 | `tests/` | pytest unit tests |
 | `docs/en-US/` | English documentation (devs/, user-guide/, design/) |
 | `docs/zh-CN/` | Chinese documentation (mirrors en-US/ structure) |
-| `scripts/` | Dev scripts: `check.sh`, `ci-local.sh`, `check_language.py`, `test_release.sh`, `final_release.sh` |
+| `scripts/` | Dev scripts: `check.sh`, `ci-local.sh`, `check_language.py`, `document_checker.py`, `test_release.sh`, `final_release.sh` |
 | `.github/workflows/` | GitHub Actions: CI, publish, test-report |
 | `.github/ISSUE_TEMPLATE/` | Issue templates (bug, feature, docs, custom) |
 | `pyproject.toml` | Project config: dependencies, tool settings (ruff, mypy, pytest) |
@@ -392,6 +392,8 @@ Then triggers `publish.yml`, waits for completion, and reports the result.
 | `pip install -e ".[dev]"` | Install package in editable mode with dev deps |
 | `bash scripts/check.sh` | Run all local checks (format, lint, type, language, tests) |
 | `bash scripts/ci-local.sh` | Simulate CI pipeline locally |
+| `python scripts/check_language.py` | Check English-only code (calls document_checker) |
+| `python scripts/document_checker.py` | Check bilingual docs, broken refs, structure |
 | `pytest` | Run unit tests |
 | `ruff format src/ tests/` | Auto-fix code formatting |
 | `ruff check --fix src/ tests/` | Auto-fix linting issues |

@@ -37,7 +37,7 @@ deep-solutions/
 | `tests/` | pytest 单元测试 |
 | `docs/en-US/` | 英文文档（devs/、user-guide/、design/） |
 | `docs/zh-CN/` | 中文文档（与 en-US/ 结构镜像） |
-| `scripts/` | 开发脚本：`check.sh`、`ci-local.sh`、`check_language.py`、`test_release.sh`、`final_release.sh` |
+| `scripts/` | 开发脚本：`check.sh`、`ci-local.sh`、`check_language.py`、`document_checker.py`、`test_release.sh`、`final_release.sh` |
 | `.github/workflows/` | GitHub Actions：CI、发布、测试报告 |
 | `.github/ISSUE_TEMPLATE/` | Issue 模板（bug、功能、文档、自定义） |
 | `pyproject.toml` | 项目配置：依赖、工具设置（ruff、mypy、pytest） |
@@ -391,6 +391,8 @@ bash scripts/final_release.sh
 | `pip install -e ".[dev]"` | 以可编辑模式安装包（含开发依赖） |
 | `bash scripts/check.sh` | 运行所有本地检查（格式、检查、类型、语言、测试） |
 | `bash scripts/ci-local.sh` | 本地模拟 CI 管道 |
+| `python scripts/check_language.py` | 检查代码纯英文（调用 document_checker） |
+| `python scripts/document_checker.py` | 检查双语文档、空引用、文档结构 |
 | `pytest` | 运行单元测试 |
 | `ruff format src/ tests/` | 自动修复代码格式 |
 | `ruff check --fix src/ tests/` | 自动修复检查问题 |

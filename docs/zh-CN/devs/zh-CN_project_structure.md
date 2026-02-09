@@ -40,7 +40,8 @@ deep-solutions/
 ├── scripts/                     # 开发与发布脚本
 │   ├── check.sh                 # 运行所有本地检查（格式、lint、类型、语言、测试）
 │   ├── ci-local.sh              # 本地模拟完整 CI 流程
-│   ├── check_language.py        # 验证代码纯英文 + 双语文档对齐
+│   ├── check_language.py        # 验证代码纯英文（调用 document_checker）
+│   ├── document_checker.py      # 检查双语文档、空引用、文档结构
 │   ├── test_release.sh          # 自动化 TestPyPI 测试发布
 │   └── final_release.sh         # 自动化正式 PyPI 发布
 │

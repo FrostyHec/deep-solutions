@@ -312,6 +312,15 @@ pytest
 
 # 完整 CI 模拟
 ./scripts/ci-local.sh
+
+# 语言检查（仅源码）
+python scripts/check_language.py --source-only
+
+# 文档检查（双语结构 + 断链检查）
+python scripts/document_checker.py
+
+# 所有语言和文档检查
+python scripts/check_language.py
 ```
 
 ---
