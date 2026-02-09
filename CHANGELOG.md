@@ -8,11 +8,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Initial project structure
-- Core module with example functionality
-- Utils module with helper functions
-- Development documentation
-- PyPI publishing guide
+### Changed
+### Fixed
+### Security
+
+## [0.1.1] - 2026-02-09
+
+### Added
+### Changed
+- Update project documentation and CI workflows to enhance clarity and usability
+### Fixed
+### Security
+
 
 ## [0.1.0] - 2026-01-28
 
