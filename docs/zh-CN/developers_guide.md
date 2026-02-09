@@ -139,7 +139,7 @@ cz commit
 
 ```bash
 git add .
-git commit -m "feat(core): 添加数据验证功能"
+git commit -m "feat(core): add xxx features"
 ```
 
 查看 [提交规范](./commit_conventions.md) 了解格式详情。

@@ -18,7 +18,6 @@ updates:
       include: "scope"
     pull-request-branch-name:
       separator: "/"
-    ignore: []
     
     # Rebase automatically to keep PRs updated
     rebase-strategy: "auto"
