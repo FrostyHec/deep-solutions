@@ -104,26 +104,33 @@ jobs:
         env:
           EXPECTED_VERSION: ${{ steps.version.outputs.version }}
         run: |
+          set -euo pipefail
           # Create new virtual environment for testing
           python -m venv test-env
           source test-env/bin/activate
+          python -m pip install --upgrade pip
           
           # Install from TestPyPI (use PyPI as extra index for dependencies)
           pip install --index-url https://test.pypi.org/simple/ \
                       --extra-index-url https://pypi.org/simple/ \
-                      deep-solutions
+                      "deep-solutions==${EXPECTED_VERSION}"
           
           # Create validation script
           cat > validate_package.py << 'EOF'
           import sys
+          import os
           import deep_solutions
 
           # Expected version from input
-          expected_version = "$EXPECTED_VERSION"
+          expected_version = os.environ.get("EXPECTED_VERSION", "").strip()
           actual_version = deep_solutions.__version__
 
           print(f"Expected version: {expected_version}")
           print(f"Actual version: {actual_version}")
+
+          if not expected_version:
+              print("❌ EXPECTED_VERSION is empty")
+              sys.exit(1)
 
           # Validate version matches
           if actual_version != expected_version:
