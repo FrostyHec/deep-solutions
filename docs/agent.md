@@ -322,9 +322,36 @@ The project uses **setuptools-scm** for automatic versioning from Git tags.
 
 ### Release Checklist
 
+#### Quick Release (Recommended)
+
+**One-Command Release Script** - Automates the entire TestPyPI release process:
+
+```bash
+bash scripts/release.sh
+```
+
+**What it does:**
+1. ✅ Reminds you to update CHANGELOG.md
+2. ✅ Switches to main branch and pulls latest code
+3. ✅ Prompts for version tag (e.g., v0.1.1rc1)
+4. ✅ Creates and pushes git tag
+5. ✅ Triggers publish-test workflow via gh CLI
+6. ✅ Waits for workflow completion and displays results
+7. ✅ Guides you for production PyPI publish
+
+**Prerequisites:**
+```bash
+# Install GitHub CLI (if not already installed)
+conda install -c conda-forge gh
+
+# Authenticate with GitHub (one-time setup)
+gh auth login
+```
+
 #### Step 1: Prepare Release
 
 1. **Ensure all checks pass locally**:
+````
    ```bash
    bash scripts/check.sh
    ```

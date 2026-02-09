@@ -51,15 +51,17 @@ jobs:
         with:
           fetch-depth: 0  # setuptools-scm requires complete git history
 
-      - name: Create git tag (if not exists)
+      - name: Check git tag exists (fail if not)
+        shell: bash
         run: |
+          set -euo pipefail
           TAG="${{ github.event.inputs.version_tag }}"
-          if ! git rev-parse "$TAG" >/dev/null 2>&1; then
-            git tag "$TAG"
-            git push origin "$TAG"
-            echo "Created and pushed tag: $TAG"
+          git fetch --tags --force
+          if git rev-parse -q --verify "refs/tags/${TAG}" >/dev/null; then
+            echo "Tag already exists: ${TAG}"
           else
-            echo "Tag already exists: $TAG"
+            echo "::error::Tag does not exist: ${TAG}"
+            exit 1
           fi
 
       - name: Set up Python

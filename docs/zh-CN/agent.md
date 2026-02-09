@@ -322,6 +322,32 @@ pytest --cov=deep_solutions --cov-report=html
 
 ### 发布清单
 
+#### 快捷发布（推荐）
+
+**一键发布脚本** - 自动化整个 TestPyPI 发布流程：
+
+```bash
+bash scripts/release.sh
+```
+
+**功能说明：**
+1. ✅ 提醒更新 CHANGELOG.md
+2. ✅ 切换到 main 分支并拉取最新代码
+3. ✅ 提示输入版本标签（例如 v0.1.1rc1）
+4. ✅ 创建并推送 git 标签
+5. ✅ 通过 gh CLI 触发 publish-test 工作流
+6. ✅ 等待工作流完成并显示结果
+7. ✅ 指导进行生产环境 PyPI 发布
+
+**前置要求：**
+```bash
+# 安装 GitHub CLI（如果尚未安装）
+conda install -c conda-forge gh
+
+# 与 GitHub 认证（一次性设置）
+gh auth login
+```
+
 #### 第 1 步：准备发布
 
 1. **确保所有检查通过**：
