@@ -4,10 +4,13 @@
 # Features:
 #   1. Download pytest artifacts from CI run
 #   2. Publish test report as GitHub Check Run (visible in PR Checks tab)
-#   3. Post/update a sticky comment on the PR with test summary
+#   3. Post/update a sticky comment on the PR with detailed test results
 # Strategy: PR reports Python 3.8 only, main push reports full matrix
-# Security: Runs in base repository context with write permissions
-#   (safe for fork PRs - workflow_run always runs on base repo)
+# Security:
+#   - workflow_run always runs in base repository context
+#   - Checkout uses base repo only (never fork code) to prevent code injection
+#   - All untrusted inputs passed via env vars (never ${{ }} in run scripts)
+#   - Permissions scoped to minimum required
 # =============================================================================
 
 name: Test Report
@@ -22,7 +25,7 @@ permissions:
   checks: write          # Create/update Check Run
   pull-requests: write   # Post sticky comment on PR
   actions: read          # Read workflow run info and download artifacts
-  contents: read         # Checkout repository code
+  contents: read         # Checkout base repository code
 
 jobs:
   report:
@@ -39,13 +42,13 @@ jobs:
         python-version: ${{ github.event.workflow_run.event == 'push' && github.event.workflow_run.head_branch == 'main' && fromJSON('["3.8", "3.9", "3.10", "3.11", "3.12"]') || fromJSON('["3.8"]') }}
 
     steps:
-      # Checkout is required - dorny/test-reporter needs a git repo
-      # For fork PRs, checkout the fork's head commit
-      - name: Checkout triggering commit
+      # Checkout BASE repo only (not fork) - dorny/test-reporter needs a git
+      # repo for path resolution, but does not need the actual PR code.
+      # SECURITY: Never checkout fork code in a privileged workflow_run context.
+      - name: Checkout base repository
         uses: actions/checkout@v4
         with:
-          repository: ${{ github.event.workflow_run.head_repository.full_name }}
-          ref: ${{ github.event.workflow_run.head_sha }}
+          ref: main
           fetch-depth: 1
 
       - name: Download test results
@@ -88,18 +91,26 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           run-id: ${{ github.event.workflow_run.id }}
 
+      # SECURITY: All workflow_run event data is passed via env vars,
+      # never interpolated with ${{ }} inside run scripts to prevent
+      # code injection via attacker-controlled branch names etc.
       - name: Parse test results and build comment
         id: parse
+        env:
+          WORKFLOW_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+          WORKFLOW_SHA: ${{ github.event.workflow_run.head_sha }}
+          WORKFLOW_BRANCH: ${{ github.event.workflow_run.head_branch }}
+          WORKFLOW_RUN_URL: ${{ github.event.workflow_run.html_url }}
         run: |
           python3 << 'PYEOF'
           import xml.etree.ElementTree as ET
-          import os, textwrap
+          import os
 
           xml_path = "test-results/pytest-report.xml"
-          conclusion = "${{ github.event.workflow_run.conclusion }}"
-          sha = "${{ github.event.workflow_run.head_sha }}"
-          branch = "${{ github.event.workflow_run.head_branch }}"
-          run_url = "${{ github.event.workflow_run.html_url }}"
+          conclusion = os.environ["WORKFLOW_CONCLUSION"]
+          sha = os.environ["WORKFLOW_SHA"]
+          branch = os.environ["WORKFLOW_BRANCH"]
+          run_url = os.environ["WORKFLOW_RUN_URL"]
 
           icon = "✅" if conclusion == "success" else "❌"
 
