@@ -318,6 +318,6 @@ pytest
 
 ## 相关文档
 
-- [开发者入门指南](./developers_guide.md)
-- [本地测试指南](./local_testing.md)
-- [CI 工作流](./ci_workflow.md)
+- [开发者入门指南](./zh-CN_developers_guide.md)
+- [本地测试指南](./zh-CN_local_testing.md)
+- [CI 工作流](./zh-CN_ci_workflow.md)

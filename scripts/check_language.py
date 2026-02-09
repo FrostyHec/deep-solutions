@@ -185,64 +185,130 @@ class LanguageChecker:
 
     def check_documentation(self) -> Tuple[int, int]:
         """
-        Check documentation for bilingual support.
+        Check documentation for bilingual support under the new structure.
 
-        Scans all files in docs/ directory (baseline for English files),
-        checks if corresponding files exist in docs/zh-CN/.
-        Also reports extra files in zh-CN that don't have English versions.
+        Structure: docs/{en-US,zh-CN}/{devs,user-guide,design}/
+        - English files use en-US_ prefix, Chinese files use zh-CN_ prefix
+        - Each directory must have an index.md
+        - Every en-US doc must have a zh-CN counterpart (and vice versa)
 
-        Returns (missing_chinese_count, extra_chinese_count).
+        Pairing logic: en-US_foo.md <-> zh-CN_foo.md (strip prefix to match).
+
+        Returns (missing_counterpart_count, missing_index_count).
         """
         self.log("\n=== Checking documentation for bilingual support ===")
         docs_dir = self.root_dir / "docs"
+        en_us_dir = docs_dir / "en-US"
         zh_cn_dir = docs_dir / "zh-CN"
 
-        missing_chinese = 0
-        extra_chinese = 0
+        missing_counterpart = 0
+        missing_index = 0
 
-        # Ensure directories exist
         if not docs_dir.exists():
-            warning_msg = f"WARNING: docs/ directory does not exist"
+            warning_msg = "WARNING: docs/ directory does not exist"
             self.warnings.append(warning_msg)
+            print(warning_msg)
             return 0, 0
 
-        if not zh_cn_dir.exists():
-            warning_msg = f"WARNING: docs/zh-CN/ directory does not exist"
-            self.warnings.append(warning_msg)
-            return 0, 0
-
-        # Get all files in English docs (excluding subdirectories)
-        en_files = set()
-        for item in docs_dir.iterdir():
-            if item.is_file() and not item.name.startswith('.'):
-                en_files.add(item.name)
-
-        # Get all files in Chinese docs
-        zh_files = set()
-        for item in zh_cn_dir.iterdir():
-            if item.is_file() and not item.name.startswith('.'):
-                zh_files.add(item.name)
-
-        # Check for missing Chinese versions
-        for en_file in sorted(en_files):
-            self.log(f"✓ Found: docs/{en_file}")
-            if en_file not in zh_files:
-                warning_msg = f"WARNING: Missing Chinese documentation: docs/zh-CN/{en_file}"
+        for lang_dir, lang_label in [(en_us_dir, "en-US"), (zh_cn_dir, "zh-CN")]:
+            if not lang_dir.exists():
+                warning_msg = f"WARNING: docs/{lang_label}/ directory does not exist"
                 self.warnings.append(warning_msg)
                 print(warning_msg)
-                missing_chinese += 1
+                return 0, 0
+
+        # Define expected subdirectories
+        subdirs = ["devs", "user-guide", "design"]
+
+        # Check index.md in each language root
+        for lang_dir, lang_label in [(en_us_dir, "en-US"), (zh_cn_dir, "zh-CN")]:
+            index_file = lang_dir / "index.md"
+            if not index_file.exists():
+                warning_msg = f"WARNING: Missing index.md in docs/{lang_label}/"
+                self.warnings.append(warning_msg)
+                print(warning_msg)
+                missing_index += 1
             else:
-                self.log(f"✓ Found: docs/zh-CN/{en_file}")
+                self.log(f"✓ Found: docs/{lang_label}/index.md")
 
-        # Check for extra files in Chinese docs (not in English)
-        for zh_file in sorted(zh_files):
-            if zh_file not in en_files:
-                warning_msg = f"WARNING: Extra Chinese documentation without English version: docs/zh-CN/{zh_file}"
-                self.warnings.append(warning_msg)
-                print(warning_msg)
-                extra_chinese += 1
+        # Check each subdirectory
+        for subdir in subdirs:
+            en_subdir = en_us_dir / subdir
+            zh_subdir = zh_cn_dir / subdir
 
-        return missing_chinese, extra_chinese
+            # Check subdirectory existence
+            for d, label in [(en_subdir, f"en-US/{subdir}"), (zh_subdir, f"zh-CN/{subdir}")]:
+                if not d.exists():
+                    warning_msg = f"WARNING: Missing directory: docs/{label}/"
+                    self.warnings.append(warning_msg)
+                    print(warning_msg)
+                    continue
+
+                # Check index.md exists in each subdirectory
+                index_file = d / "index.md"
+                if not index_file.exists():
+                    warning_msg = f"WARNING: Missing index.md in docs/{label}/"
+                    self.warnings.append(warning_msg)
+                    print(warning_msg)
+                    missing_index += 1
+                else:
+                    self.log(f"✓ Found: docs/{label}/index.md")
+
+            # Skip bilingual pairing if either dir doesn't exist
+            if not en_subdir.exists() or not zh_subdir.exists():
+                continue
+
+            # Collect doc files (exclude index.md)
+            en_files = set()
+            for item in en_subdir.iterdir():
+                if item.is_file() and item.name != "index.md" and not item.name.startswith('.'):
+                    en_files.add(item.name)
+
+            zh_files = set()
+            for item in zh_subdir.iterdir():
+                if item.is_file() and item.name != "index.md" and not item.name.startswith('.'):
+                    zh_files.add(item.name)
+
+            # Build base name mapping: strip prefix to get base name
+            # en-US_foo.md -> foo.md, zh-CN_foo.md -> foo.md
+            en_base_to_file = {}
+            for f in en_files:
+                base = f.replace("en-US_", "", 1) if f.startswith("en-US_") else f
+                en_base_to_file[base] = f
+
+            zh_base_to_file = {}
+            for f in zh_files:
+                base = f.replace("zh-CN_", "", 1) if f.startswith("zh-CN_") else f
+                zh_base_to_file[base] = f
+
+            # Check EN files have ZH counterparts
+            for base, en_file in sorted(en_base_to_file.items()):
+                self.log(f"✓ Found: docs/en-US/{subdir}/{en_file}")
+                if base not in zh_base_to_file:
+                    warning_msg = (
+                        f"WARNING: Missing Chinese counterpart for "
+                        f"docs/en-US/{subdir}/{en_file} "
+                        f"(expected docs/zh-CN/{subdir}/zh-CN_{base})"
+                    )
+                    self.warnings.append(warning_msg)
+                    print(warning_msg)
+                    missing_counterpart += 1
+                else:
+                    self.log(f"✓ Found: docs/zh-CN/{subdir}/{zh_base_to_file[base]}")
+
+            # Check ZH files have EN counterparts
+            for base, zh_file in sorted(zh_base_to_file.items()):
+                if base not in en_base_to_file:
+                    warning_msg = (
+                        f"WARNING: Missing English counterpart for "
+                        f"docs/zh-CN/{subdir}/{zh_file} "
+                        f"(expected docs/en-US/{subdir}/en-US_{base})"
+                    )
+                    self.warnings.append(warning_msg)
+                    print(warning_msg)
+                    missing_counterpart += 1
+
+        return missing_counterpart, missing_index
 
     def check_readme(self) -> Tuple[bool, bool]:
         """
@@ -290,7 +356,7 @@ class LanguageChecker:
         chinese_in_ci = self.check_ci_configs()
 
         # Check documentation
-        missing_zh_docs, extra_zh_docs = self.check_documentation()
+        missing_counterparts, missing_indexes = self.check_documentation()
 
         # Check README
         readme_en_exists, readme_zh_exists = self.check_readme()
@@ -361,9 +427,9 @@ def main():
     if args.source_only:
         exit_code = 1 if checker.check_source_code() > 0 else 0
     elif args.docs_only:
-        missing_en, _ = checker.check_documentation()
+        missing_counterparts, missing_indexes = checker.check_documentation()
         checker.check_readme()
-        exit_code = 1 if missing_en > 0 else 0
+        exit_code = 0  # docs issues are warnings, not errors
     else:
         exit_code = checker.run_all_checks()
 

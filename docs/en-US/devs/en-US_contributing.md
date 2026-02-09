@@ -25,11 +25,11 @@
 
 Please take a moment to familiarize yourself with the project:
 
-1. **Read the [Agent Development Guide](agent.md)** — Comprehensive technical documentation covering project structure, code standards, testing, and release procedures. **This is essential reading for all contributors.**
+1. **Read the [Agent Development Guide](en-US_agent.md)** — Comprehensive technical documentation covering project structure, code standards, testing, and release procedures. **This is essential reading for all contributors.**
 
-2. **Check [Code Standards](code_standards.md)** — Understanding commit conventions and PR requirements.
+2. **Check [Code Standards](en-US_code_standards.md)** — Understanding commit conventions and PR requirements.
 
-3. **Review [Project Structure](project_structure.md)** — Learn about dependencies and how the project is organized.
+3. **Review [Project Structure](en-US_project_structure.md)** — Learn about dependencies and how the project is organized.
 
 ---
 
@@ -59,7 +59,7 @@ pip install -e ".[dev]"
 python -c "import deep_solutions; print(deep_solutions.__version__)"
 ```
 
-> **Important**: Read the [Agent Development Guide](agent.md) **before proceeding**. It contains essential information about project structure, code specifications, and best practices.
+> **Important**: Read the [Agent Development Guide](en-US_agent.md) **before proceeding**. It contains essential information about project structure, code specifications, and best practices.
 
 ### Step 2: Create an Issue (Optional)
 
@@ -136,6 +136,18 @@ bash scripts/ci-local.sh
 
 ---
 
+### Pre-Submission Checklist
+
+Before submitting your PR, verify the following:
+
+- [ ] **Commit conventions**: All commits follow [Conventional Commits](en-US_commit_conventions.md) format
+- [ ] **All checks pass**: `bash scripts/check.sh` completes with no errors
+- [ ] **Tests pass**: `pytest` runs without failures; new features have unit tests
+- [ ] **Documentation updated**: If you changed behavior, file structure, or APIs, update the relevant docs (both EN and ZH versions)
+- [ ] **No stale references**: If you moved/renamed files, update all cross-references in docs and READMEs
+
+---
+
 ### Step 5: Commit Your Changes
 
 Follow the project's commit convention for clear, descriptive commits.
@@ -164,7 +176,7 @@ git commit -m "fix(utils): resolve edge case in format_output"
 git commit -m "docs(contributing): improve contributor guide"
 ```
 
-> For detailed conventions, see [Commit Conventions](commit_conventions.md).
+> For detailed conventions, see [Commit Conventions](en-US_commit_conventions.md).
 
 ---
 
@@ -299,7 +311,7 @@ When contributing, please follow these standards:
 - ✅ No merge commits in feature branches
 - ✅ Delete branches after merge
 
-For more details, see [Code Standards](code_standards.md) and [Commit Conventions](commit_conventions.md).
+For more details, see [Code Standards](en-US_code_standards.md) and [Commit Conventions](en-US_commit_conventions.md).
 
 ---
 
@@ -331,7 +343,7 @@ For more details, see [Code Standards](code_standards.md) and [Commit Convention
 ## Getting Help
 
 - **Questions?** Open an [issue](https://github.com/FrostyHec/deep-solutions/issues)
-- **Need guidance?** Check the [Agent Development Guide](agent.md) or [Developer Guide](developers_guide.md)
+- **Need guidance?** Check the [Agent Development Guide](en-US_agent.md) or [Developer Guide](en-US_developers_guide.md)
 - **Found a bug?** Report it on [GitHub Issues](https://github.com/FrostyHec/deep-solutions/issues)
 
 ---

@@ -288,6 +288,6 @@ twine upload dist/*
 
 ## 相关文档
 
-- [CI 工作流说明](./ci_workflow.md) - 了解 CI/CD 流程
-- [本地测试指南](./local_testing.md) - 发布前测试
-- [项目结构](./project_structure.md) - 了解版本管理配置
+- [CI 工作流说明](./zh-CN_ci_workflow.md) - 了解 CI/CD 流程
+- [本地测试指南](./zh-CN_local_testing.md) - 发布前测试
+- [项目结构](./zh-CN_project_structure.md) - 了解版本管理配置

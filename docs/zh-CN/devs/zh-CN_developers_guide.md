@@ -142,7 +142,7 @@ git add .
 git commit -m "feat(core): add xxx features"
 ```
 
-查看 [提交规范](./commit_conventions.md) 了解格式详情。
+查看 [提交规范](./zh-CN_commit_conventions.md) 了解格式详情。
 
 ### 4. 推送更改
 
@@ -199,8 +199,8 @@ deep-solutions/
 
 ## 相关文档
 
-- [项目结构](./project_structure.md)
-- [代码规范](./code_standards.md)
-- [本地测试指南](./local_testing.md)
-- [CI 工作流](./ci_workflow.md)
-- [提交规范](./commit_conventions.md)
+- [项目结构](./zh-CN_project_structure.md)
+- [代码规范](./zh-CN_code_standards.md)
+- [本地测试指南](./zh-CN_local_testing.md)
+- [CI 工作流](./zh-CN_ci_workflow.md)
+- [提交规范](./zh-CN_commit_conventions.md)

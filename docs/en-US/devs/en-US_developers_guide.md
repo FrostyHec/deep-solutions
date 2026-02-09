@@ -221,12 +221,12 @@ git push origin feature/your-feature-name
 
 After completing environment setup, we recommend reading:
 
-- [Project Structure](./project_structure.md) - Understand directory structure and dependency management
-- [Code Standards](./code_standards.md) - Learn commit conventions and code style
-- [Local Testing Guide](./local_testing.md) - Learn various local testing methods
-- [CI Workflow](./ci_workflow.md) - Understand CI/CD process
-- [Language Guidelines](./language_guidelines.md) - Understand bilingual requirements
-- [Commit Conventions](./commit_conventions.md) - Learn commit message format
+- [Project Structure](./en-US_project_structure.md) - Understand directory structure and dependency management
+- [Code Standards](./en-US_code_standards.md) - Learn commit conventions and code style
+- [Local Testing Guide](./en-US_local_testing.md) - Learn various local testing methods
+- [CI Workflow](./en-US_ci_workflow.md) - Understand CI/CD process
+- [Language Guidelines](./en-US_language_guidelines.md) - Understand bilingual requirements
+- [Commit Conventions](./en-US_commit_conventions.md) - Learn commit message format
 
 ---
 

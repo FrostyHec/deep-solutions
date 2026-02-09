@@ -214,6 +214,6 @@ cz changelog
 
 ## Related Documentation
 
-- [Code Standards](./code_standards.md)
-- [Developer Guide](./developers_guide.md)
-- [Language Guidelines](./language_guidelines.md)
+- [Code Standards](./en-US_code_standards.md)
+- [Developer Guide](./en-US_developers_guide.md)
+- [Language Guidelines](./en-US_language_guidelines.md)

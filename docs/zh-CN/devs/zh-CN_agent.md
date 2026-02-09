@@ -18,9 +18,11 @@
 deep-solutions/
 ├── src/deep_solutions/       # 主要包源代码
 ├── tests/                    # 单元测试
-├── docs/                     # 文档（双语：English + zh-CN/）
-├── scripts/                  # 开发工具脚本
-├── .github/workflows/        # CI/CD 工作流
+├── docs/                     # 文档（双语）
+│   ├── en-US/                # 英文文档（devs/、user-guide/、design/）
+│   └── zh-CN/                # 中文文档（与 en-US 结构一致）
+├── scripts/                  # 开发与发布脚本
+├── .github/                  # GitHub 配置（工作流、模板、dependabot）
 ├── pyproject.toml            # 项目元数据与工具配置
 ├── environment.yml           # Conda 环境规范
 ├── tox.ini                   # Tox 多版本测试配置
@@ -33,9 +35,11 @@ deep-solutions/
 |-----|------|
 | `src/deep_solutions/` | 主要包模块（core、utils 等） |
 | `tests/` | pytest 单元测试 |
-| `docs/` | 双语文档（英文基础 + `zh-CN/` 翻译） |
-| `scripts/` | 开发脚本：`check.sh`、`ci-local.sh`、`check_language.py` |
+| `docs/en-US/` | 英文文档（devs/、user-guide/、design/） |
+| `docs/zh-CN/` | 中文文档（与 en-US/ 结构镜像） |
+| `scripts/` | 开发脚本：`check.sh`、`ci-local.sh`、`check_language.py`、`test_release.sh`、`final_release.sh` |
 | `.github/workflows/` | GitHub Actions：CI、发布、测试报告 |
+| `.github/ISSUE_TEMPLATE/` | Issue 模板（bug、功能、文档、自定义） |
 | `pyproject.toml` | 项目配置：依赖、工具设置（ruff、mypy、pytest） |
 | `environment.yml` | Conda 环境文件用于开发设置 |
 | `tox.ini` | 多 Python 版本测试（3.8-3.12） |
@@ -162,13 +166,13 @@ python -m pytest tests/ -v
   - 函数参数和返回值需要类型提示
 
 - **文档**: 双语（英文基础 + 中文翻译）
-  - 主文档位于 `docs/*.md`（英文）
-  - 翻译版本位于 `docs/zh-CN/*.md`（中文）
-  - 详见 `docs/language_guidelines.md`
+  - 英文文档位于 `docs/en-US/`（按 devs/、user-guide/、design/ 组织）
+  - 中文文档位于 `docs/zh-CN/`（与 en-US/ 结构镜像）
+  - 详见 [语言指南](zh-CN_language_guidelines.md)
 
 - **Git 提交**: 仅英文（约定式提交格式）
   - 格式：`type(scope): subject`（例如 `feat(core): add new solver`）
-  - 详见 `docs/commit_conventions.md`
+  - 详见 [提交约定](zh-CN_commit_conventions.md)
 
 ### 代码风格与标准
 
@@ -210,7 +214,7 @@ python -m pytest tests/ -v
 ### 何时允许使用中文
 
 ✅ **允许**：
-- `docs/zh-CN/` 目录中的文档
+- `docs/zh-CN/` 目录中的文档（文件以 `zh-CN_` 为前缀）
 - 中文文档文件中的注释
 - 面向用户的错误消息（可本地化），但需要使用适当的 i18n 框架
 
@@ -398,14 +402,36 @@ bash scripts/final_release.sh
 
 ---
 
+## 文档与结构同步
+
+当项目文件结构发生重大变更时，以下文档**必须**同步更新：
+
+| 文档 | 更新内容 |
+|------|----------|
+| `en-US_project_structure.md` + `zh-CN_project_structure.md` | 目录树、文件描述 |
+| `en-US_agent.md` + `zh-CN_agent.md` | 目录布局（§0）、脚本表 |
+| `docs/{en-US,zh-CN}/index.md` | 新增子目录时更新顶级索引 |
+| `docs/{en-US,zh-CN}/{subdir}/index.md` | 文件增删时更新子目录索引 |
+| `README.md` + `README.zh-CN.md` | 文档链接表 |
+
+### 文档文件命名约定
+
+- 英文文档：`docs/en-US/{subdir}/en-US_filename.md`
+- 中文文档：`docs/zh-CN/{subdir}/zh-CN_filename.md`
+- 每个新文档必须同时有 EN 和 ZH 版本
+- 每个目录必须包含 `index.md`
+- `check_language.py` 自动检查双语对齐
+
+---
+
 ## 其他资源
 
-- **[开发者指南](developers_guide.md)** - 详细的设置和贡献工作流
-- **[代码标准](code_standards.md)** - PR 工作流、合并要求
-- **[提交约定](commit_conventions.md)** - 约定式提交格式
-- **[项目结构](project_structure.md)** - 依赖管理详情
-- **[CI 工作流](ci_workflow.md)** - GitHub Actions 管道详情
-- **[本地测试](local_testing.md)** - 综合测试指南
-- **[发布指南](publishing.md)** - 发布流程深潜
-- **[语言指南](language_guidelines.md)** - 语言政策
+- **[开发者指南](zh-CN_developers_guide.md)** - 详细的设置和贡献工作流
+- **[代码标准](zh-CN_code_standards.md)** - PR 工作流、合并要求
+- **[提交约定](zh-CN_commit_conventions.md)** - 约定式提交格式
+- **[项目结构](zh-CN_project_structure.md)** - 依赖管理详情
+- **[CI 工作流](zh-CN_ci_workflow.md)** - GitHub Actions 管道详情
+- **[本地测试](zh-CN_local_testing.md)** - 综合测试指南
+- **[发布指南](zh-CN_publishing.md)** - 发布流程深潜
+- **[语言指南](zh-CN_language_guidelines.md)** - 语言政策
 

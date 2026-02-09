@@ -391,6 +391,6 @@ Before publishing:
 
 ## Related Documentation
 
-- [Developer Guide](./developers_guide.md)
-- [CI Workflow](./ci_workflow.md)
-- [Code Standards](./code_standards.md)
+- [Developer Guide](./en-US_developers_guide.md)
+- [CI Workflow](./en-US_ci_workflow.md)
+- [Code Standards](./en-US_code_standards.md)

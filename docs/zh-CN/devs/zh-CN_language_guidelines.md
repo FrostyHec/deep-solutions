@@ -72,22 +72,24 @@ def process_data(data: List[int]) -> List[int]:
 
 ```
 docs/
-├── developers_guide.md      # 英文（必须）
-├── project_structure.md     # 英文（必须）
-├── code_standards.md        # 英文（必须）
-├── ...
-└── zh-CN/                   # 中文翻译
-    ├── developers_guide.md  # 中文（推荐）
-    ├── project_structure.md
-    └── ...
+├── en-US/                       # 英文文档
+│   ├── devs/                    # 开发指南 (en-US_*.md)
+│   ├── user-guide/              # 用户教程 (en-US_*.md)
+│   ├── design/                  # 架构文档 (en-US_*.md)
+│   └── index.md
+└── zh-CN/                       # 中文翻译
+    ├── devs/                    # 开发指南 (zh-CN_*.md)
+    ├── user-guide/              # 用户指南 (zh-CN_*.md)
+    ├── design/                  # 设计文档 (zh-CN_*.md)
+    └── index.md
 ```
 
 ### 要求
 
 | 文档 | 英文 | 中文 |
 |------|------|------|
-| 核心文档 (`docs/*.md`) | ✅ 必须 | - |
-| 中文翻译 (`docs/zh-CN/*.md`) | - | ⚠️ 推荐 |
+| 英文文档 (`docs/en-US/**/*.md`) | ✅ 必须 | - |
+| 中文文档 (`docs/zh-CN/**/*.md`) | - | ⚠️ 推荐 |
 | README.md | ✅ 必须 | - |
 | README.zh-CN.md | - | ⚠️ 推荐 |
 
@@ -174,8 +176,8 @@ python scripts/check_language.py --verbose
 
 我们欢迎改进中文翻译的贡献：
 
-1. 在 `docs/zh-CN/` 中创建/更新相应文件
-2. 保持结构与英文版本一致
+1. 在 `docs/zh-CN/{subdir}/` 中创建/更新相应文件，使用 `zh-CN_` 前缀
+2. 保持结构与 `docs/en-US/{subdir}/` 中的英文版本一致
 3. 提交类型为 `docs` 的 PR
 
 示例：
@@ -187,6 +189,6 @@ docs(zh-CN): add Chinese translation for developers_guide
 
 ## 相关文档
 
-- [Commit 规范](./commit_conventions.md)
-- [代码规范](./code_standards.md)
-- [开发者指南](./developers_guide.md)
+- [Commit 规范](./zh-CN_commit_conventions.md)
+- [代码规范](./zh-CN_code_standards.md)
+- [开发者指南](./zh-CN_developers_guide.md)

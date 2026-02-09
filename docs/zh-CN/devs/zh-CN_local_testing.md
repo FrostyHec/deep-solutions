@@ -405,6 +405,6 @@ ignore_missing_imports = true
 
 ## 相关文档
 
-- [CI 工作流说明](./ci_workflow.md) - 了解远程 CI 行为
-- [代码规范](./code_standards.md) - 代码质量要求
-- [开发者入门指南](./developers_guide.md) - 环境配置
+- [CI 工作流说明](./zh-CN_ci_workflow.md) - 了解远程 CI 行为
+- [代码规范](./zh-CN_code_standards.md) - 代码质量要求
+- [开发者入门指南](./zh-CN_developers_guide.md) - 环境配置

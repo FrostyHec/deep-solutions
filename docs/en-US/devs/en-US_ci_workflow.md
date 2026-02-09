@@ -311,6 +311,6 @@ The workflow file is located at:
 
 ## Related Documentation
 
-- [Developer Guide](./developers_guide.md)
-- [Local Testing Guide](./local_testing.md)
-- [Code Standards](./code_standards.md)
+- [Developer Guide](./en-US_developers_guide.md)
+- [Local Testing Guide](./en-US_local_testing.md)
+- [Code Standards](./en-US_code_standards.md)

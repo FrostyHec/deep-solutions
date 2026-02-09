@@ -174,8 +174,8 @@ Warnings are reported in the PR check run for visibility.
 
 We welcome contributions to improve Chinese translations:
 
-1. Create/update the corresponding file in `docs/zh-CN/`
-2. Keep the structure consistent with the English version
+1. Create/update the corresponding file in `docs/zh-CN/{subdir}/` with `zh-CN_` prefix
+2. Keep the structure consistent with the English version in `docs/en-US/{subdir}/`
 3. Submit a PR with type `docs`
 
 Example:
@@ -187,6 +187,6 @@ docs(zh-CN): add Chinese translation for developers_guide
 
 ## Related Documentation
 
-- [Commit Conventions](./commit_conventions.md)
-- [Code Standards](./code_standards.md)
-- [Developer Guide](./developers_guide.md)
+- [Commit Conventions](./en-US_commit_conventions.md)
+- [Code Standards](./en-US_code_standards.md)
+- [Developer Guide](./en-US_developers_guide.md)

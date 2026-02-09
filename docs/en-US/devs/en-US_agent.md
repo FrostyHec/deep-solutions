@@ -18,9 +18,11 @@ This guide provides AI agents (and developers) with comprehensive information to
 deep-solutions/
 ├── src/deep_solutions/       # Main package source code
 ├── tests/                    # Unit tests
-├── docs/                     # Documentation (bilingual: English + zh-CN/)
-├── scripts/                  # Development utility scripts
-├── .github/workflows/        # CI/CD workflows
+├── docs/                     # Documentation (bilingual)
+│   ├── en-US/                # English docs (devs/, user-guide/, design/)
+│   └── zh-CN/                # Chinese docs (same structure as en-US)
+├── scripts/                  # Development & release scripts
+├── .github/                  # GitHub config (workflows, templates, dependabot)
 ├── pyproject.toml            # Project metadata & tool config
 ├── environment.yml           # Conda environment specification
 ├── tox.ini                   # Tox multi-version testing config
@@ -33,9 +35,11 @@ deep-solutions/
 |-----------|---------|
 | `src/deep_solutions/` | Main package modules (core, utils, etc.) |
 | `tests/` | pytest unit tests |
-| `docs/` | Bilingual documentation (English base + `zh-CN/` translations) |
-| `scripts/` | Dev scripts: `check.sh`, `ci-local.sh`, `check_language.py` |
+| `docs/en-US/` | English documentation (devs/, user-guide/, design/) |
+| `docs/zh-CN/` | Chinese documentation (mirrors en-US/ structure) |
+| `scripts/` | Dev scripts: `check.sh`, `ci-local.sh`, `check_language.py`, `test_release.sh`, `final_release.sh` |
 | `.github/workflows/` | GitHub Actions: CI, publish, test-report |
+| `.github/ISSUE_TEMPLATE/` | Issue templates (bug, feature, docs, custom) |
 | `pyproject.toml` | Project config: dependencies, tool settings (ruff, mypy, pytest) |
 | `environment.yml` | Conda environment file for dev setup |
 | `tox.ini` | Multi-Python-version testing (3.8-3.12) |
@@ -162,13 +166,13 @@ Example:
   - Type hints required for function parameters and returns
 
 - **Documentation**: Bilingual (English base + Chinese translations)
-  - Primary docs in `docs/*.md` (English)
-  - Translated versions in `docs/zh-CN/*.md` (Chinese)
-  - Use `docs/language_guidelines.md` for details
+  - English docs in `docs/en-US/` (organized by devs/, user-guide/, design/)
+  - Chinese docs in `docs/zh-CN/` (mirrors en-US/ structure)
+  - See [Language Guidelines](en-US_language_guidelines.md) for details
 
 - **Git Commits**: English only (Conventional Commits format)
   - Format: `type(scope): subject` (e.g., `feat(core): add new solver`)
-  - See `docs/commit_conventions.md` for details
+  - See [Commit Conventions](en-US_commit_conventions.md) for details
 
 ### Code Style & Standards
 
@@ -210,9 +214,9 @@ Example:
 ### When Chinese is Allowed
 
 ✅ **Allowed**:
-- Documentation in `docs/zh-CN/` directory
+- Documentation in `docs/zh-CN/` directory (files prefixed with `zh-CN_`)
 - Comments in Chinese documentation files
-- User-facing error messages (can be localized)， but must use appropriate i18n framework
+- User-facing error messages (can be localized), but must use appropriate i18n framework
 
 ❌ **Not Allowed**:
 - Source code (`.py` files)
@@ -399,14 +403,36 @@ Then triggers `publish.yml`, waits for completion, and reports the result.
 
 ---
 
+## Documentation & Structure Sync
+
+When the project file structure changes significantly, the following documents **must** be updated to stay in sync:
+
+| Document | What to Update |
+|----------|----------------|
+| `en-US_project_structure.md` + `zh-CN_project_structure.md` | Directory tree, file descriptions |
+| `en-US_agent.md` + `zh-CN_agent.md` | Directory layout (§0), scripts table |
+| `docs/{en-US,zh-CN}/index.md` | Top-level doc index if new subdirs added |
+| `docs/{en-US,zh-CN}/{subdir}/index.md` | Subdir index if files added/removed |
+| `README.md` + `README.zh-CN.md` | Documentation links table |
+
+### Documentation File Naming Convention
+
+- English docs: `docs/en-US/{subdir}/en-US_filename.md`
+- Chinese docs: `docs/zh-CN/{subdir}/zh-CN_filename.md`
+- Every new doc must have both EN and ZH versions
+- Every directory must contain an `index.md`
+- `check_language.py` enforces bilingual parity automatically
+
+---
+
 ## Additional Resources
 
-- **[Developer Guide](developers_guide.md)** - Detailed setup and contribution workflow
-- **[Code Standards](code_standards.md)** - PR workflow, merge requirements
-- **[Commit Conventions](commit_conventions.md)** - Conventional Commits format
-- **[Project Structure](project_structure.md)** - Dependency management details
-- **[CI Workflow](ci_workflow.md)** - GitHub Actions pipeline details
-- **[Local Testing](local_testing.md)** - Comprehensive testing guide
-- **[Publishing](publishing.md)** - Release process deep dive
-- **[Language Guidelines](language_guidelines.md)** - Language policy
+- **[Developer Guide](en-US_developers_guide.md)** - Detailed setup and contribution workflow
+- **[Code Standards](en-US_code_standards.md)** - PR workflow, merge requirements
+- **[Commit Conventions](en-US_commit_conventions.md)** - Conventional Commits format
+- **[Project Structure](en-US_project_structure.md)** - Dependency management details
+- **[CI Workflow](en-US_ci_workflow.md)** - GitHub Actions pipeline details
+- **[Local Testing](en-US_local_testing.md)** - Comprehensive testing guide
+- **[Publishing](en-US_publishing.md)** - Release process deep dive
+- **[Language Guidelines](en-US_language_guidelines.md)** - Language policy
 

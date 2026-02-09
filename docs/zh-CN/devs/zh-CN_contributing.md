@@ -25,11 +25,11 @@
 
 请花点时间熟悉该项目：
 
-1. **阅读 [Agent 开发指南](agent.md)** — 涵盖项目结构、代码标准、测试和发布过程的综合技术文档。**这是所有贡献者必读的内容。**
+1. **阅读 [Agent 开发指南](zh-CN_agent.md)** — 涵盖项目结构、代码标准、测试和发布过程的综合技术文档。**这是所有贡献者必读的内容。**
 
-2. **查阅 [代码标准](code_standards.md)** — 了解提交约定和 PR 要求。
+2. **查阅 [代码标准](zh-CN_code_standards.md)** — 了解提交约定和 PR 要求。
 
-3. **浏览 [项目结构](project_structure.md)** — 学习依赖关系和项目组织方式。
+3. **浏览 [项目结构](zh-CN_project_structure.md)** — 学习依赖关系和项目组织方式。
 
 ---
 
@@ -59,7 +59,7 @@ pip install -e ".[dev]"
 python -c "import deep_solutions; print(deep_solutions.__version__)"
 ```
 
-> **重要**：继续之前，请先阅读 [Agent 开发指南](agent.md)。它包含关于项目结构、代码规范和最佳实践的必要信息。
+> **重要**：继续之前，请先阅读 [Agent 开发指南](zh-CN_agent.md)。它包含关于项目结构、代码规范和最佳实践的必要信息。
 
 ### 第 2 步：创建问题（可选）
 
@@ -136,6 +136,18 @@ bash scripts/ci-local.sh
 
 ---
 
+### 提交前检查清单
+
+提交 PR 前，请确认以下事项：
+
+- [ ] **提交约定**：所有提交遵循[约定式提交](zh-CN_commit_conventions.md)格式
+- [ ] **所有检查通过**：`bash scripts/check.sh` 无错误完成
+- [ ] **测试通过**：`pytest` 无失败运行；新功能已添加单元测试
+- [ ] **文档已更新**：如果修改了行为、文件结构或 API，请更新相关文档（EN 和 ZH 版本）
+- [ ] **无过时引用**：如果移动/重命名了文件，请更新文档和 README 中的所有交叉引用
+
+---
+
 ### 第 5 步：提交更改
 
 遵循项目的提交约定，写出清晰、描述性的提交。
@@ -164,7 +176,7 @@ git commit -m "fix(utils): resolve edge case in format_output"
 git commit -m "docs(contributing): improve contributor guide"
 ```
 
-> 详细约定见 [提交约定](commit_conventions.md)。
+> 详细约定见 [提交约定](zh-CN_commit_conventions.md)。
 
 ---
 
@@ -299,7 +311,7 @@ git fetch --prune
 - ✅ 功能分支中没有合并提交
 - ✅ 合并后删除分支
 
-详见 [代码标准](code_standards.md) 和 [提交约定](commit_conventions.md)。
+详见 [代码标准](zh-CN_code_standards.md) 和 [提交约定](zh-CN_commit_conventions.md)。
 
 ---
 
@@ -331,7 +343,7 @@ git fetch --prune
 ## 获取帮助
 
 - **有问题？** 打开一个 [issue](https://github.com/FrostyHec/deep-solutions/issues)
-- **需要指导？** 查阅 [Agent 开发指南](agent.md) 或 [开发者指南](developers_guide.md)
+- **需要指导？** 查阅 [Agent 开发指南](zh-CN_agent.md) 或 [开发者指南](zh-CN_developers_guide.md)
 - **发现错误？** 在 [GitHub Issues](https://github.com/FrostyHec/deep-solutions/issues) 上报告
 
 ---
