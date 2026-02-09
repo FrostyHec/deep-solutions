@@ -89,15 +89,17 @@ jobs:
         with:
           fetch-depth: 0  # setuptools-scm requires complete git history
 
-      - name: Create git tag (if not exists)
+      - name: Check git tag exists (fail if not)
+        shell: bash
         run: |
+          set -euo pipefail
           TAG="${{ github.event.inputs.version_tag }}"
-          if ! git rev-parse "$TAG" >/dev/null 2>&1; then
-            git tag "$TAG"
-            git push origin "$TAG"
-            echo "Created and pushed tag: $TAG"
+          git fetch --tags --force
+          if git rev-parse -q --verify "refs/tags/${TAG}" >/dev/null; then
+            echo "Tag already exists: ${TAG}"
           else
-            echo "Tag already exists: $TAG"
+            echo "::error::Tag does not exist: ${TAG}"
+            exit 1
           fi
 
       - name: Set up Python
@@ -123,27 +125,63 @@ jobs:
           TWINE_NON_INTERACTIVE: 1
         run: twine upload dist/* --skip-existing
 
-      - name: Wait for package to be available
-        run: sleep 60
-
-      - name: Test installation from PyPI
+      - name: Extract version from tag
+        id: get_version
         run: |
-          # Create new virtual environment for testing
+          TAG="${{ github.event.inputs.version_tag }}"
+          VERSION="${TAG#v}"
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          echo "Extracted version from tag: $VERSION"
+
+      - name: Install from PyPI (retry until available) and validate
+        env:
+          EXPECTED_VERSION: ${{ steps.get_version.outputs.VERSION }}
+        run: |
+          set -euo pipefail
           python -m venv test-env
           source test-env/bin/activate
-          
-          # Install from PyPI
-          pip install deep-solutions
-          
-          # Verify installation
-          python -c "import deep_solutions; print(f'Version: {deep_solutions.__version__}')"
-          python -c "from deep_solutions import hello_world; print(hello_world())"
-          
-          deactivate
+          python -m pip install --upgrade pip
 
-      - name: Get version from tag
-        id: get_version
-        run: echo "VERSION=${{ github.event.inputs.version_tag }}" | sed 's/^v//' >> $GITHUB_OUTPUT
+          echo "Waiting for deep-solutions==${EXPECTED_VERSION} on PyPI..."
+          max_attempts=12   # 12 * 15s = 180s (3 minutes)
+          attempt=1
+          until pip install "deep-solutions==${EXPECTED_VERSION}"
+          do
+            if [ "$attempt" -ge "$max_attempts" ]; then
+              echo "::error::Package deep-solutions==${EXPECTED_VERSION} not available after $((max_attempts*15))s"
+              exit 1
+            fi
+            echo "Attempt ${attempt}/${max_attempts} failed; retrying in 15s..."
+            attempt=$((attempt+1))
+            sleep 15
+          done
+          echo "✅ Package installed successfully"
+
+          # Validate version and functionality
+          python - <<PYEOF
+          import sys, os, deep_solutions
+          from deep_solutions import hello_world
+
+          expected = os.environ["EXPECTED_VERSION"]
+          actual = deep_solutions.__version__
+          print(f"Expected version: {expected}")
+          print(f"Actual version:   {actual}")
+          if actual != expected:
+              print(f"❌ Version mismatch! Expected '{expected}', got '{actual}'")
+              sys.exit(1)
+          print("✅ Version validated successfully!")
+
+          result = hello_world()
+          expected_output = "Hello from deep-solutions!"
+          print(f"Function output: {result}")
+          if result != expected_output:
+              print(f"❌ Output mismatch! Expected '{expected_output}', got '{result}'")
+              sys.exit(1)
+          print("✅ hello_world() validated successfully!")
+          print("\n✅ All validations passed!")
+          PYEOF
+
+          deactivate
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
