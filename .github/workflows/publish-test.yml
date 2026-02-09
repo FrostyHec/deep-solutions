@@ -89,7 +89,18 @@ jobs:
       - name: Wait for package to be available
         run: sleep 30
 
+      - name: Extract and validate version from tag
+        id: version
+        run: |
+          TAG="${{ github.event.inputs.version_tag }}"
+          # Remove 'v' prefix if present to get version string
+          VERSION="${TAG#v}"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Extracted version from tag: $VERSION"
+
       - name: Test installation from TestPyPI
+        env:
+          EXPECTED_VERSION: ${{ steps.version.outputs.version }}
         run: |
           # Create new virtual environment for testing
           python -m venv test-env
@@ -100,9 +111,44 @@ jobs:
                       --extra-index-url https://pypi.org/simple/ \
                       deep-solutions
           
-          # Verify installation
-          python -c "import deep_solutions; print(f'Version: {deep_solutions.__version__}')"
-          python -c "from deep_solutions import hello_world; print(hello_world())"
+          # Create validation script
+          cat > validate_package.py << 'EOF'
+          import sys
+          import deep_solutions
+
+          # Expected version from input
+          expected_version = "$EXPECTED_VERSION"
+          actual_version = deep_solutions.__version__
+
+          print(f"Expected version: {expected_version}")
+          print(f"Actual version: {actual_version}")
+
+          # Validate version matches
+          if actual_version != expected_version:
+              print(f"❌ Version mismatch! Expected '{expected_version}', got '{actual_version}'")
+              sys.exit(1)
+          else:
+              print(f"✅ Version validated successfully!")
+
+          # Test hello_world function
+          from deep_solutions import hello_world
+          result = hello_world()
+          expected_output = "Hello from deep-solutions!"
+
+          print(f"Function output: {result}")
+
+          # Validate hello_world output
+          if result != expected_output:
+              print(f"❌ Output mismatch! Expected '{expected_output}', got '{result}'")
+              sys.exit(1)
+          else:
+              print(f"✅ hello_world() validated successfully!")
+
+          print("\n✅ All validations passed! Package is ready for production PyPI.")
+          EOF
+
+          # Run validation
+          python validate_package.py
           
           deactivate
 
