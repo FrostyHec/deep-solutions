@@ -29,6 +29,8 @@ classifiers = [
 dependencies = [
     "numpy>=1.17.0",
     "scipy>=1.5.0",
+    "matplotlib>=3.3.0",
+    "torch>=1.7.0",
 ]
 
 [project.optional-dependencies]
@@ -47,12 +49,6 @@ dev = [
 docs = [
     "sphinx>=6.0.0",
     "sphinx-rtd-theme>=1.2.0",
-]
-viz = [
-    "matplotlib>=3.3.0",
-]
-pytorch = [
-    "torch>=1.7.0",
 ]
 
 [project.urls]

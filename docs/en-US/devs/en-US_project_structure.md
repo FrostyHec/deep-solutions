@@ -164,9 +164,20 @@ deep-solutions/
 
 | Category | Section | Purpose |
 |----------|---------|---------|
-| Core | `[project] dependencies` | Runtime requirements (numpy, scipy, etc.) |
+| Core | `[project] dependencies` | Runtime requirements (numpy, scipy, torch, matplotlib) |
 | Dev | `[project.optional-dependencies] dev` | Testing, linting, formatting, building tools |
 | Docs | `[project.optional-dependencies] docs` | Sphinx documentation building |
+
+### Core Dependencies
+
+The following dependencies are required for all users and are automatically installed:
+
+- **NumPy** (>=1.17.0): Numerical computing foundation
+- **SciPy** (>=1.5.0): Scientific computing algorithms
+- **PyTorch** (>=1.7.0): Deep learning framework (required for parameter search tools)
+- **Matplotlib** (>=3.3.0): Visualization and plotting (required for chart generation)
+
+These are defined in `pyproject.toml` under `[project] dependencies`.
 
 ### Installation
 

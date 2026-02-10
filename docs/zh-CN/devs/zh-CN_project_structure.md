@@ -119,9 +119,20 @@ deep-solutions/
 
 | 类别 | 配置节 | 用途 |
 |------|--------|------|
-| 核心 | `[project] dependencies` | 运行时需求（numpy、scipy 等） |
+| 核心 | `[project] dependencies` | 运行时需求（numpy、scipy、torch、matplotlib） |
 | 开发 | `[project.optional-dependencies] dev` | 测试、检查、格式化、构建工具 |
 | 文档 | `[project.optional-dependencies] docs` | Sphinx 文档构建 |
+
+### 核心依赖
+
+以下依赖对所有用户都是必需的，会自动安装：
+
+- **NumPy** (>=1.17.0): 数值计算基础
+- **SciPy** (>=1.5.0): 科学计算算法
+- **PyTorch** (>=1.7.0): 深度学习框架（参数搜索工具所需）
+- **Matplotlib** (>=3.3.0): 可视化和绘图（图表生成所需）
+
+这些在 `pyproject.toml` 的 `[project] dependencies` 中定义。
 
 ### 安装方式
 
