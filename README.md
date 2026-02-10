@@ -14,6 +14,16 @@ Install from PyPI:
 pip install deep-solutions
 ```
 
+### Core Dependencies
+
+This package requires the following core dependencies:
+- **NumPy** (>=1.17.0): Numerical computing
+- **SciPy** (>=1.5.0): Scientific computing
+- **PyTorch** (>=1.7.0): Deep learning framework
+- **Matplotlib** (>=3.3.0): Visualization and plotting
+
+These dependencies are automatically installed with the package.
+
 Install from source (for development):
 
 ```bash
