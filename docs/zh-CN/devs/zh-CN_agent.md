@@ -49,23 +49,34 @@ deep-solutions/
 ```
 src/deep_solutions/
 ├── __init__.py               # 公开 API：hello_world、DeepSolution、format_output、get_library_version
-├── core.py                   # 核心类：DeepSolution；函数：hello_world
-├── utils.py                  # 工具函数：format_output 及辅助函数
 ├── _version.py               # setuptools-scm 自动生成（勿编辑）
-└── parameter_search/         # 参数搜索库
-    ├── core/                 # 核心引擎（ParamSearcher、SearchResult）
-    ├── utils/                # Timer、MetricsCollector、@public_api 装饰器
-    ├── epochs/               # 内置 epoch 实现（timed_epoch、simple_epoch）
-    ├── analyzers/            # 结果分析器（BestParamAnalyzer、ChartAnalyzer）
-    └── pytorch/              # PyTorch 封装（DataLoaderParamSelector）
+├── tools/                    # 面向用户的工具集（公开 API）
+│   ├── helloworld/           # 模板/示例工具
+│   │   ├── core.py           # 核心功能（@public_api）
+│   │   ├── utils.py          # 工具函数（@public_api）
+│   │   └── __init__.py       # 公开 API 导出
+│   └── parameter_search/     # 参数搜索库
+│       ├── core/             # 核心引擎（ParamSearcher、SearchResult）
+│       ├── epochs/           # 内置 epoch 实现（timed_epoch、simple_epoch）
+│       ├── analyzers/        # 结果分析器（BestParamAnalyzer、ChartAnalyzer）
+│       └── pytorch/          # PyTorch 封装（DataLoaderParamSelector）
+└── _utils/                   # 内部工具（非公开 API）
+    ├── timer.py              # 性能计时
+    ├── metrics.py            # 指标收集
+    ├── decorators.py         # @public_api 装饰器
+    └── __init__.py           # 内部导出
 ```
+
+**结构原则**：
+- **`tools/`**: 面向用户的工具（公开 API）。每个工具都是完整的、面向任务的包。使用 `@public_api` 装饰器标记稳定 API。
+- **`_utils/`**: 内部的、项目无关的工具。非公开 API。用户不应从 `_utils` 导入。
+- **测试**: 在 `tests/test_tools/` 和 `tests/test__utils/` 下匹配结构。
 
 | 模块 | 内容 | 用途 |
 |-----|------|------|
-| `core.py` | `DeepSolution` 类、`hello_world()` | 深度学习解决方案的核心功能 |
-| `utils.py` | `format_output()`、辅助函数 | 格式化和处理的工具函数 |
-| `__init__.py` | 公开 API 导出 | 定义 `__all__` 和版本管理 |
-| `parameter_search/` | `ParamSearcher`、`DataLoaderParamSelector` | 参数空间探索与优化 |
+| `tools/helloworld/` | `hello_world()`、`DeepSolution`、`format_output()` | 演示结构的模板工具 |
+| `tools/parameter_search/` | `ParamSearcher`、`DataLoaderParamSelector` | 参数空间探索 |
+| `_utils/` | `Timer`、`MetricsCollector`、`@public_api` | 所有模块的内部工具 |
 
 ---
 

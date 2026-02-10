@@ -5,8 +5,8 @@ deep-solutions: A Python package for deep learning solutions.
 from importlib.metadata import PackageNotFoundError
 from importlib.metadata import version as get_version
 
-from .core import DeepSolution, hello_world
-from .utils import format_output
+# Import from new structure
+from deep_solutions.tools.helloworld import DeepSolution, format_output, hello_world
 
 
 def _get_package_version() -> str:
@@ -16,7 +16,7 @@ def _get_package_version() -> str:
     except PackageNotFoundError:
         # When not installed (only cloned source), read from setuptools-scm generated file
         try:
-            from ._version import version as scm_version
+            from deep_solutions._version import version as scm_version
 
             return str(scm_version)
         except ImportError:

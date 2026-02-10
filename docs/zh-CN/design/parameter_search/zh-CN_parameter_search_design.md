@@ -74,7 +74,7 @@ print(deep_solutions.get_library_version())
 ```python
 from torch.utils.data import TensorDataset
 import torch
-from deep_solutions.parameter_search.pytorch import DataLoaderParamSelector
+from deep_solutions.tools.parameter_search.pytorch import DataLoaderParamSelector
 
 # 创建数据集
 dataset = TensorDataset(torch.randn(10000, 784), torch.randint(0, 10, (10000,)))
@@ -99,9 +99,9 @@ print(f"最优吞吐量: {result['best_throughput']:.1f} samples/s")
 ### 3. 自定义参数搜索（高级用法）
 
 ```python
-from deep_solutions.parameter_search import ParamSearcher
-from deep_solutions.parameter_search.epochs import timed_epoch
-from deep_solutions.parameter_search.analyzers import BestParamAnalyzer, ChartAnalyzer
+from deep_solutions.tools.parameter_search import ParamSearcher
+from deep_solutions.tools.parameter_search.epochs import timed_epoch
+from deep_solutions.tools.parameter_search.analyzers import BestParamAnalyzer, ChartAnalyzer
 
 # 定义每个配置的初始化方式
 def init_func(config):
@@ -148,7 +148,7 @@ chart.analyze(result)
 ### 4. 自定义 Epoch 函数
 
 ```python
-from deep_solutions.parameter_search.epochs import simple_epoch
+from deep_solutions.tools.parameter_search.epochs import simple_epoch
 
 def my_eval(config, init_result):
     """完全自定义的指标计算。"""
@@ -161,8 +161,8 @@ epoch_func = simple_epoch(my_eval)
 ### 5. 自定义分析器
 
 ```python
-from deep_solutions.parameter_search.analyzers import BaseAnalyzer
-from deep_solutions.parameter_search.core import SearchResult
+from deep_solutions.tools.parameter_search.analyzers import BaseAnalyzer
+from deep_solutions.tools.parameter_search.core import SearchResult
 
 class TopKAnalyzer(BaseAnalyzer):
     """返回 Top-K 配置。"""

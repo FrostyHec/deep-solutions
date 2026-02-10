@@ -99,9 +99,9 @@ print(f"Best throughput: {result['best_throughput']:.1f} samples/s")
 ### 3. Custom Parameter Search (Advanced)
 
 ```python
-from deep_solutions.parameter_search import ParamSearcher
-from deep_solutions.parameter_search.epochs import timed_epoch
-from deep_solutions.parameter_search.analyzers import BestParamAnalyzer, ChartAnalyzer
+from deep_solutions.tools.parameter_search import ParamSearcher
+from deep_solutions.tools.parameter_search.epochs import timed_epoch
+from deep_solutions.tools.parameter_search.analyzers import BestParamAnalyzer, ChartAnalyzer
 
 # Define how to initialize resources for each config
 def init_func(config):
@@ -148,7 +148,7 @@ chart.analyze(result)
 ### 4. Custom Epoch Function
 
 ```python
-from deep_solutions.parameter_search.epochs import simple_epoch
+from deep_solutions.tools.parameter_search.epochs import simple_epoch
 
 def my_eval(config, init_result):
     """Fully custom metrics computation."""
@@ -161,8 +161,8 @@ epoch_func = simple_epoch(my_eval)
 ### 5. Custom Analyzer
 
 ```python
-from deep_solutions.parameter_search.analyzers import BaseAnalyzer
-from deep_solutions.parameter_search.core import SearchResult
+from deep_solutions.tools.parameter_search.analyzers import BaseAnalyzer
+from deep_solutions.tools.parameter_search.core import SearchResult
 
 class TopKAnalyzer(BaseAnalyzer):
     """Return top-K configurations."""

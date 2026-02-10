@@ -17,20 +17,33 @@ deep-solutions/
 ├── src/deep_solutions/          # 主包（src-layout 布局）
 │   ├── __init__.py              # 公共 API 导出
 │   ├── _version.py              # setuptools-scm 自动生成
-│   ├── core.py                  # 核心功能模块
-│   ├── utils.py                 # 工具函数模块
-│   └── parameter_search/        # 参数搜索库
-│       ├── core/                # 核心引擎（ParamSearcher）
-│       ├── utils/               # Timer、MetricsCollector、装饰器
-│       ├── epochs/              # 内置 epoch 实现
-│       ├── analyzers/           # 结果分析器（图表、最佳参数）
-│       └── pytorch/             # PyTorch DataLoader 封装
+│   ├── tools/                   # 面向用户的工具集（公共 API）
+│   │   ├── helloworld/          # 模板/示例工具
+│   │   │   ├── core.py          # 核心功能（@public_api 标记）
+│   │   │   ├── utils.py         # 工具函数（@public_api 标记）
+│   │   │   └── __init__.py      # 公共 API 导出
+│   │   └── parameter_search/    # 参数搜索库
+│   │       ├── core/            # 核心引擎（ParamSearcher）
+│   │       ├── epochs/          # 内置 epoch 实现
+│   │       ├── analyzers/       # 结果分析器（图表、最佳参数）
+│   │       └── pytorch/         # PyTorch DataLoader 封装
+│   └── _utils/                  # 内部工具（非公共 API）
+│       ├── timer.py             # 性能计时工具
+│       ├── metrics.py           # 指标收集
+│       ├── decorators.py        # @public_api 装饰器
+│       └── __init__.py          # 内部导出
 │
 ├── tests/                       # 单元测试（pytest）
 │   ├── __init__.py
-│   ├── test_core.py             # core 模块测试
-│   ├── test_utils.py            # utils 模块测试
-│   └── test_parameter_search/   # 参数搜索模块测试
+│   ├── test_tools/              # 面向用户工具的测试
+│   │   ├── test_helloworld.py   # helloworld 工具测试
+│   │   └── test_parameter_search/  # 参数搜索测试
+│   └── test__utils/             # 内部工具的测试
+│       └── test_utils.py        # timer、metrics、decorators 测试
+│
+├── poc/                         # 概念验证示例
+│   └── param_selector/          # 参数选择 POC
+│       └── dataloader_param_selector.py  # 可运行的 DataLoader 示例
 │
 ├── docs/                        # 文档（双语）
 │   ├── en-US/                   # 英文文档
@@ -78,6 +91,19 @@ deep-solutions/
 ├── CHANGELOG.md                 # 发布历史
 └── LICENSE                      # Apache 2.0 许可证
 ```
+
+### 核心结构原则
+
+**tools/ vs _utils/**: 代码库区分面向用户的工具和内部工具：
+
+- **`tools/`**: 面向用户的工具，属于公共 API 的一部分。每个工具都是一个完整的、面向任务的包，用户可以直接导入和使用。示例：`helloworld`、`parameter_search`。
+- **`_utils/`**: 内部的、项目无关的工具代码，在代码库中跨模块使用。NOT 公共 API 的一部分。用户不应直接从 `_utils` 导入。示例：`Timer`、`MetricsCollector`、`@public_api` 装饰器。
+
+**@public_api 装饰器**: 使用 `@public_api` 装饰的函数和类被明确标记为稳定的公共 API。该装饰器：
+- 在文档字符串前添加 `[PUBLIC API]` 标记以提高可见性
+- 向用户和开发者表明该 API 是稳定且受支持的
+- 用于 `tools/` 模块中标记面向用户的功能
+- 示例：`@public_api\ndef hello_world() -> str: ...`
 
 ---
 
