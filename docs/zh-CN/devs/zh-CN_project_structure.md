@@ -18,12 +18,19 @@ deep-solutions/
 │   ├── __init__.py              # 公共 API 导出
 │   ├── _version.py              # setuptools-scm 自动生成
 │   ├── core.py                  # 核心功能模块
-│   └── utils.py                 # 工具函数模块
+│   ├── utils.py                 # 工具函数模块
+│   └── parameter_search/        # 参数搜索库
+│       ├── core/                # 核心引擎（ParamSearcher）
+│       ├── utils/               # Timer、MetricsCollector、装饰器
+│       ├── epochs/              # 内置 epoch 实现
+│       ├── analyzers/           # 结果分析器（图表、最佳参数）
+│       └── pytorch/             # PyTorch DataLoader 封装
 │
 ├── tests/                       # 单元测试（pytest）
 │   ├── __init__.py
 │   ├── test_core.py             # core 模块测试
-│   └── test_utils.py            # utils 模块测试
+│   ├── test_utils.py            # utils 模块测试
+│   └── test_parameter_search/   # 参数搜索模块测试
 │
 ├── docs/                        # 文档（双语）
 │   ├── en-US/                   # 英文文档

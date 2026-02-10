@@ -48,6 +48,12 @@ docs = [
     "sphinx>=6.0.0",
     "sphinx-rtd-theme>=1.2.0",
 ]
+viz = [
+    "matplotlib>=3.3.0",
+]
+pytorch = [
+    "torch>=1.7.0",
+]
 
 [project.urls]
 Homepage = "https://github.com/FrostyHec/deep-solutions"
