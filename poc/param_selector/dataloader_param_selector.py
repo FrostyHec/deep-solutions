@@ -83,8 +83,8 @@ def main():
         print(f"  {param}: {values}")
     print()
     
-    # Configure selector
-    chart_path = "poc_dataloader_performance.png"
+    # Configure selector - save chart in poc/param_selector/ directory
+    chart_path = str(Path(__file__).parent / "poc_dataloader_performance.png")
     selector = DataLoaderParamSelector(
         dataset=dataset,
         search_space=search_space,

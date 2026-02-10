@@ -5,8 +5,7 @@ deep-solutions: A Python package for deep learning solutions.
 from importlib.metadata import PackageNotFoundError
 from importlib.metadata import version as get_version
 
-# Import from new structure
-from deep_solutions.tools.helloworld import DeepSolution, format_output, hello_world
+from deep_solutions._utils.api_discovery import discover_public_apis
 
 
 def _get_package_version() -> str:
@@ -39,11 +38,11 @@ def get_library_version() -> str:
     return __version__
 
 
-# Public API - explicitly list what should be exposed
-__all__ = [
-    "__version__",
-    "hello_world",
-    "DeepSolution",
-    "format_output",
-    "get_library_version",
-]
+# Dynamically discover and import all public APIs from tools/
+_public_apis = discover_public_apis("deep_solutions.tools")
+
+# Inject discovered APIs into module namespace
+globals().update(_public_apis)
+
+# Build __all__ dynamically
+__all__ = ["__version__", "get_library_version"] + sorted(_public_apis.keys())
