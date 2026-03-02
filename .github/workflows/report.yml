@@ -52,7 +52,7 @@ jobs:
           fetch-depth: 1
 
       - name: Download test results
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: pytest-results-${{ matrix.python-version }}
           path: test-results
@@ -84,7 +84,7 @@ jobs:
 
     steps:
       - name: Download test results
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: pytest-results-3.8
           path: test-results
